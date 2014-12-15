@@ -15,22 +15,28 @@ str_invalid:
 	.globl	run_func
 	.type	run_func, @function
 run_func:
+# save frame pointer on stack
 	pushl	%ebp
 	movl	%esp, %ebp
+# callee save ebx on stack
 	pushl	%ebx
 	subl	$36, %esp
+# put 1st argument to eax
 	movl	12(%ebp), %eax
 	movl	%eax, -28(%ebp)
+# put 2nd argument to eax
 	movl	16(%ebp), %eax
 	movl	%eax, -32(%ebp)
 	movl	%gs:20, %eax
 	movl	%eax, -12(%ebp)
 	xorl	%eax, %eax
 	movl	8(%ebp), %eax
+# substract 50 from first parameter
 	subl	$50, %eax
 	cmpl	$4, %eax
 	ja	case_default
 	movl	jump_table(,%eax,4), %eax
+# jump to address from table
 	jmp	*%eax
 	.section	.rodata
 	.align 4
@@ -74,10 +80,12 @@ case_51:
 	addl	$16, %esp
 	movsbl	%al, %eax
 	subl	$4, %esp
+# put printf params on stack and call it
 	pushl	%ebx
 	pushl	%eax
 	pushl	$str_outres
 	call	printf
+# restore 
 	addl	$16, %esp
 	jmp	exit
 case_52:
@@ -119,11 +127,13 @@ case_52:
 	jmp	exit
 case_53:
 	subl	$8, %esp
+# put pointers to pstr1, pstr2 on stack
 	pushl	-32(%ebp)
 	pushl	-28(%ebp)
 	call	pstrcmp
 	addl	$16, %esp
 	subl	$8, %esp
+# eax contains pstrcmp result
 	pushl	%eax
 	pushl	$str_compres
 	call	printf
@@ -131,12 +141,14 @@ case_53:
 	jmp	exit
 case_54:
 	subl	$8, %esp
+# calculate address of 'i' pstrijcmp parameter and put to eax
 	leal	-20(%ebp), %eax
 	pushl	%eax
 	pushl	$str_scanf
 	call	__isoc99_scanf
 	addl	$16, %esp
 	subl	$8, %esp
+# calculate address of 'j' pstrijcmp parameter and put to eax
 	leal	-16(%ebp), %eax
 	pushl	%eax
 	pushl	$str_scanf
