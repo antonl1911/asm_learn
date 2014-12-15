@@ -20,8 +20,8 @@ run_func:
 	movl	%esp, %ebp
 # callee save ebx on stack
 	pushl	%ebx
+# get 36 bytes from stack
 	subl	$36, %esp
-# put 1st argument to eax
 	movl	12(%ebp), %eax
 	movl	%eax, -28(%ebp)
 # put 2nd argument to eax
@@ -30,6 +30,7 @@ run_func:
 	movl	%gs:20, %eax
 	movl	%eax, -12(%ebp)
 	xorl	%eax, %eax
+# put 1st argument to eax
 	movl	8(%ebp), %eax
 # substract 50 from first parameter
 	subl	$50, %eax
@@ -127,7 +128,7 @@ case_52:
 	jmp	exit
 case_53:
 	subl	$8, %esp
-# put pointers to pstr1, pstr2 on stack
+# push pointers to pstr1, pstr2 on stack
 	pushl	-32(%ebp)
 	pushl	-28(%ebp)
 	call	pstrcmp
