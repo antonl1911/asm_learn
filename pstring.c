@@ -25,14 +25,13 @@ int pstrcmp(Pstring* pstr1, Pstring* pstr2)
 }
 int pstrijcmp(Pstring* pstr1, Pstring* pstr2, char i, char j)
 {
-     char* errinput = "invalid input!\n";
 	int n;
 	if (i > j)
-		printf("%s", errinput);
+		printf("invalid input!\n");
 	if (i > pstr1->len || i > pstr2->len)
-		printf("%s", errinput);
+		printf("invalid input!\n");
 	if (j > pstr1->len || j > pstr2->len)
-		printf("%s", errinput);
+		printf("invalid input!\n");
 	for (n = i; n <= j; n++)
 	{
 		if (pstr1->str[n] > pstr2->str[n])
