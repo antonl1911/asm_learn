@@ -25,7 +25,7 @@ int pstrcmp(Pstring* pstr1, Pstring* pstr2)
 }
 int pstrijcmp(Pstring* pstr1, Pstring* pstr2, char i, char j)
 {
-     static char* errinput = "invalid input!\n";
+     char* errinput = "invalid input!\n";
 	int n;
 	if (i > j)
 		printf("%s", errinput);

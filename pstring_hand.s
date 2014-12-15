@@ -1,13 +1,4 @@
 	.file	"pstring.c"
-	.section	.rodata
-.LC0:
-	.string	"invalid input!\n"
-	.data
-	.align 4
-	.type	errinput, @object
-	.size	errinput, 4
-errinput:
-	.long	.LC0
 	.text
 	.globl	pstrlen
 	.type	pstrlen, @function
@@ -101,6 +92,8 @@ pstrcmp:
 	ret
 	.size	pstrcmp, .-pstrcmp
 	.section	.rodata
+.LC0:
+	.string	"invalid input!\n"
 .LC1:
 	.string	"%s"
 	.text
@@ -114,12 +107,12 @@ pstrijcmp:
 	movl	20(%ebp), %eax
 	movb	%dl, -28(%ebp)
 	movb	%al, -32(%ebp)
+	movl	$.LC0, -12(%ebp)
 	movzbl	-28(%ebp), %eax
 	cmpb	-32(%ebp), %al
 	jle	.L13
-	movl	errinput, %eax
 	subl	$8, %esp
-	pushl	%eax
+	pushl	-12(%ebp)
 	pushl	$.LC1
 	call	printf
 	addl	$16, %esp
@@ -133,9 +126,8 @@ pstrijcmp:
 	cmpb	-28(%ebp), %al
 	jge	.L15
 .L14:
-	movl	errinput, %eax
 	subl	$8, %esp
-	pushl	%eax
+	pushl	-12(%ebp)
 	pushl	$.LC1
 	call	printf
 	addl	$16, %esp
@@ -149,50 +141,49 @@ pstrijcmp:
 	cmpb	-32(%ebp), %al
 	jge	.L17
 .L16:
-	movl	errinput, %eax
 	subl	$8, %esp
-	pushl	%eax
+	pushl	-12(%ebp)
 	pushl	$.LC1
 	call	printf
 	addl	$16, %esp
 .L17:
 	movsbl	-28(%ebp), %eax
-	movl	%eax, -12(%ebp)
+	movl	%eax, -16(%ebp)
 	jmp	.L18
 .L22:
 	movl	8(%ebp), %edx
-	movl	-12(%ebp), %eax
+	movl	-16(%ebp), %eax
 	addl	%edx, %eax
 	movzbl	1(%eax), %edx
 	movl	12(%ebp), %ecx
-	movl	-12(%ebp), %eax
+	movl	-16(%ebp), %eax
 	addl	%ecx, %eax
 	movzbl	1(%eax), %eax
 	cmpb	%al, %dl
 	jle	.L19
 	movl	$1, %eax
-	jmp	exit
+	jmp	.L20
 .L19:
 	movl	8(%ebp), %edx
-	movl	-12(%ebp), %eax
+	movl	-16(%ebp), %eax
 	addl	%edx, %eax
 	movzbl	1(%eax), %edx
 	movl	12(%ebp), %ecx
-	movl	-12(%ebp), %eax
+	movl	-16(%ebp), %eax
 	addl	%ecx, %eax
 	movzbl	1(%eax), %eax
 	cmpb	%al, %dl
 	jge	.L21
 	movl	$-1, %eax
-	jmp	exit
+	jmp	.L20
 .L21:
-	addl	$1, -12(%ebp)
+	addl	$1, -16(%ebp)
 .L18:
 	movsbl	-32(%ebp), %eax
-	cmpl	-12(%ebp), %eax
+	cmpl	-16(%ebp), %eax
 	jge	.L22
 	movl	$0, %eax
-exit:
+.L20:
 	leave
 	ret
 	.size	pstrijcmp, .-pstrijcmp
