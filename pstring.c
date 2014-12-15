@@ -7,15 +7,7 @@ char pstrlen(Pstring *pstr)
 }
 Pstring* pstrcpy(Pstring* dst, Pstring* src)
 {
-	int i;
-	if (src->len > dst->len)
-		return dst;
-	for (i = 0; i < src->len; i++)
-	{
-		dst->str[i] = src->str[i];
-	}
-	dst->len = src->len;
-	return dst;
+     return pstrijcpy(dst, src, 0, src->len);
 }
 Pstring* pstrijcpy(Pstring* dst, Pstring* src, char i, char j)
 {
@@ -30,21 +22,7 @@ Pstring* pstrijcpy(Pstring* dst, Pstring* src, char i, char j)
 }
 int pstrcmp(Pstring* pstr1, Pstring* pstr2)
 {
-	int i;
-	if (pstr1->len > pstr2->len)
-		return 1;
-	else if (pstr1->len < pstr2->len)
-		return -1;
-	else {
-		for (i = 0; i < pstr1->len; i++)
-		{
-			if (pstr1->str[i] > pstr2->str[i])
-				return 1;
-			else if (pstr1->str[i] < pstr2->str[i])
-				return -1;
-		}
-		return 0;
-	}
+     return pstrijcmp(pstr1, pstr2, 0, pstr1->len);
 }
 int pstrijcmp(Pstring* pstr1, Pstring* pstr2, char i, char j)
 {
