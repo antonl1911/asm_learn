@@ -6,7 +6,7 @@
 .LC1:
 	.string	"length: %d, string: %s\n"
 .LC2:
-	.string	"%d %d"
+	.string	"%d"
 .LC3:
 	.string	"compare result: %d\n"
 .LC4:
@@ -15,16 +15,10 @@
 	.globl	run_func
 	.type	run_func, @function
 run_func:
-.LFB0:
-	.cfi_startproc
 	pushl	%ebp
-	.cfi_def_cfa_offset 8
-	.cfi_offset 5, -8
 	movl	%esp, %ebp
-	.cfi_def_cfa_register 5
 	pushl	%ebx
 	subl	$36, %esp
-	.cfi_offset 3, -12
 	movl	12(%ebp), %eax
 	movl	%eax, -28(%ebp)
 	movl	16(%ebp), %eax
@@ -87,10 +81,14 @@ run_func:
 	addl	$16, %esp
 	jmp	.L1
 .L6:
-	subl	$4, %esp
-	leal	-16(%ebp), %eax
-	pushl	%eax
+	subl	$8, %esp
 	leal	-20(%ebp), %eax
+	pushl	%eax
+	pushl	$.LC2
+	call	__isoc99_scanf
+	addl	$16, %esp
+	subl	$8, %esp
+	leal	-16(%ebp), %eax
 	pushl	%eax
 	pushl	$.LC2
 	call	__isoc99_scanf
@@ -132,10 +130,14 @@ run_func:
 	addl	$16, %esp
 	jmp	.L1
 .L8:
-	subl	$4, %esp
-	leal	-16(%ebp), %eax
-	pushl	%eax
+	subl	$8, %esp
 	leal	-20(%ebp), %eax
+	pushl	%eax
+	pushl	$.LC2
+	call	__isoc99_scanf
+	addl	$16, %esp
+	subl	$8, %esp
+	leal	-16(%ebp), %eax
 	pushl	%eax
 	pushl	$.LC2
 	call	__isoc99_scanf
@@ -170,12 +172,7 @@ run_func:
 .L10:
 	movl	-4(%ebp), %ebx
 	leave
-	.cfi_restore 5
-	.cfi_restore 3
-	.cfi_def_cfa 4, 4
 	ret
-	.cfi_endproc
-.LFE0:
 	.size	run_func, .-run_func
-	.ident	"GCC: (Gentoo 4.9.1 p1.0, pie-0.6.0) 4.9.1"
+	.ident	"GCC: (Gentoo 4.9.2 p1.0, pie-0.6.1) 4.9.2"
 	.section	.note.GNU-stack,"",@progbits
