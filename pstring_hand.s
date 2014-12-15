@@ -171,7 +171,7 @@ pstrijcmp:
 	cmpb	%al, %dl
 	jle	.L19
 	movl	$1, %eax
-	jmp	.L20
+	jmp	exit
 .L19:
 	movl	8(%ebp), %edx
 	movl	-12(%ebp), %eax
@@ -184,7 +184,7 @@ pstrijcmp:
 	cmpb	%al, %dl
 	jge	.L21
 	movl	$-1, %eax
-	jmp	.L20
+	jmp	exit
 .L21:
 	addl	$1, -12(%ebp)
 .L18:
@@ -192,9 +192,8 @@ pstrijcmp:
 	cmpl	-12(%ebp), %eax
 	jge	.L22
 	movl	$0, %eax
-.L20:
+exit:
 	leave
 	ret
 	.size	pstrijcmp, .-pstrijcmp
-	.ident	"GCC: (Gentoo 4.9.2 p1.0, pie-0.6.1) 4.9.2"
 	.section	.note.GNU-stack,"",@progbits

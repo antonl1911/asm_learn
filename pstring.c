@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include "pstring.h"
-static char* errinput = "invalid input!\n";
 char pstrlen(Pstring *pstr)
 {
 	return pstr->len;
@@ -26,6 +25,7 @@ int pstrcmp(Pstring* pstr1, Pstring* pstr2)
 }
 int pstrijcmp(Pstring* pstr1, Pstring* pstr2, char i, char j)
 {
+     static char* errinput = "invalid input!\n";
 	int n;
 	if (i > j)
 		printf("%s", errinput);
