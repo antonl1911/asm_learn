@@ -1,4 +1,4 @@
-CFLAGS:=-m32 -fno-asynchronous-unwind-tables -O0
+CFLAGS:=-m32 -fno-asynchronous-unwind-tables -O2
 
 dumps: func_select.c pstring.c
 	gcc func_select.c $(CFLAGS) -g -c -o func_select_dump.o
