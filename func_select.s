@@ -21,10 +21,7 @@ jump_table:
 run_func:
 	pushl	%esi				# callee save esi on stack
 	pushl	%ebx				# callee save ebx on stack
-	subl	$20,		%esp
-	movl	%gs:20, 	%eax
-	movl	%eax, 		12(%esp)
-	xorl	%eax, 		%eax
+	subl	$20,		%esp    # make space on stack
 	movl	32(%esp),	%eax    # get first parameter (opt) from stack
 	movl	36(%esp),	%ebx    # get second parameter (*p1) from stack
 	movl	40(%esp),	%esi    # get third parameter (*p2) from stack
@@ -46,7 +43,7 @@ case_50:
 	pushl	%eax                # put second parameter on stack
 	pushl	$str_twolen         # put first parameter on stack
 	call	printf
-	addl	$32, 	%esp
+	addl	$12, 	%esp
 	jmp		exit
 case_51:
 	subl	$8, 	%esp        # reserve space for two variables on stack
@@ -126,10 +123,8 @@ case_default:
 	addl	$16, 		%esp
 	nop
 exit:
-    movl	12(%esp),	%eax
-    xorl    %gs:20,     %eax
-    addl    20(%esp),   %esp
+    addl    $20,        %esp    # return 20 bytes to stack
     popl    %ebx                # restore saved registers
     popl    %esi
-	ret
+	ret                         # return from function
 .size       run_func,   .-run_func
