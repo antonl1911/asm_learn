@@ -20,40 +20,34 @@ jump_table:
 	.type	run_func, @function
 run_func:
 
-	pushl	%ebp				# save frame pointer on stack
-	movl	%esp, 		%ebp
+	pushl	%esi				# save frame pointer on stack
 	pushl	%ebx				# callee save ebx on stack
-	subl	$36, 		%esp 	# get 36 bytes from stack
-	movl	12(%ebp), 	%eax
-	movl	%eax, 		-28(%ebp)
-	movl	16(%ebp), 	%eax	# put 2nd argument to eax
-	movl	%eax, 	-32(%ebp)
+	subl	$20,		%esp
 	movl	%gs:20, 	%eax
-	movl	%eax, 		-12(%ebp)
+	movl	%eax, 		12(%esp)
 	xorl	%eax, 		%eax
-	movl	8(%ebp), 	%eax	# put 1st argument to eax
+	movl	32(%esp),	%eax
+	movl	36(%esp),	%ebx
+	movl	40(%esp),	%esi
 	subl	$50, 		%eax	# substract 50 from first parameter
 	cmpl	$4, 		%eax
 	ja		case_default
-	movl	jump_table(,%eax,4), %eax
-	jmp		*%eax				# jump to address from table
+	jmp		*jump_table(,%eax,4)
 case_50:
 	subl	$12, 	%esp
-	pushl	-32(%ebp)
+	pushl	%esi
 	call	pstrlen
-	addl	$16, 	%esp
-	movsbl	%al, 	%ebx
-	subl	$12, 	%esp
-	pushl	-28(%ebp)
-	call	pstrlen
-	addl	$16, 	%esp
+	movl	%eax,	%esi
+	movl	%ebx,	(%esp)
+	call 	pstrlen
+	movl	%esi,	%edx
 	movsbl	%al, 	%eax
-	subl	$4, 	%esp
-	pushl	%ebx
+	movsbl	%dl, 	%esi
+	pushl	%esi
 	pushl	%eax
 	pushl	$str_twolen
 	call	printf
-	addl	$16, 	%esp
+	addl	$32, 	%esp
 	jmp		exit
 case_51:
 	subl	$8, 	%esp
@@ -119,6 +113,7 @@ case_53:
 	call	pstrcmp
 	addl	$16, 		%esp
 	subl	$8, 		%esp
+print_compare:
 	pushl	%eax				# eax contains pstrcmp result
 	pushl	$str_compres
 	call	printf
@@ -126,33 +121,25 @@ case_53:
 	jmp		exit
 case_54:
 	subl	$8, %esp
-	leal	-20(%ebp), 	%eax	# calculate address of 'i' pstrijcmp parameter and put to eax
+	leal	12(%esp), 	%eax	# calculate address of 'i' pstrijcmp parameter and put to eax
 	pushl	%eax
 	pushl	$str_scanf
 	call	scanf
-	addl	$16, 		%esp
-	subl	$8, 		%esp
-	leal	-16(%ebp), 	%eax	# calculate address of 'j' pstrijcmp parameter and put to eax
+	popl	%eax
+	popl	%edx
+	leal	16(%esp), 	%eax	# calculate address of 'j' pstrijcmp parameter and put to eax
 	pushl	%eax
 	pushl	$str_scanf
 	call	scanf
-	addl	$16, %esp
-	movl	-16(%ebp), 	%eax
-	movsbl	%al, %edx
-	movl	-20(%ebp), 	%eax
-	movsbl	%al, %eax
-	pushl	%edx
+	movsbl	24(%esp), 	%eax
 	pushl	%eax
-	pushl	-32(%ebp)
-	pushl	-28(%ebp)
+	movsbl	24(%esp), 	%eax
+	pushl	%eax
+	pushl	%esi
+	pushl	%ebx
 	call	pstrijcmp
-	addl	$16, %esp
-	subl	$8, %esp
-	pushl	%eax
-	pushl	$str_compres
-	call	printf
-	addl	$16, 		%esp
-	jmp		exit
+	addl	$28, 		%esp
+	jmp		print_compare
 case_default:
 	subl	$12, 		%esp
 	pushl	$str_invalid
