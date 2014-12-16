@@ -1,8 +1,9 @@
 	.file	"func_select.c"
-	.section	.rodata
+	.section	.rodata.str1.4,"aMS",@progbits,1
 	.align 4
 .LC0:
 	.string	"first pstring length %d, second pstring length: %d\n"
+	.section	.rodata.str1.1,"aMS",@progbits,1
 .LC1:
 	.string	"length: %d, string: %s\n"
 .LC2:
@@ -11,27 +12,27 @@
 	.string	"compare result: %d\n"
 .LC4:
 	.string	"invalid option!"
+	.section	.text.unlikely,"ax",@progbits
+.LCOLDB5:
 	.text
+.LHOTB5:
+	.p2align 4,,15
 	.globl	run_func
 	.type	run_func, @function
 run_func:
-	pushl	%ebp
-	movl	%esp, %ebp
+	pushl	%esi
 	pushl	%ebx
-	subl	$36, %esp
-	movl	12(%ebp), %eax
-	movl	%eax, -28(%ebp)
-	movl	16(%ebp), %eax
-	movl	%eax, -32(%ebp)
+	subl	$20, %esp
 	movl	%gs:20, %eax
-	movl	%eax, -12(%ebp)
+	movl	%eax, 12(%esp)
 	xorl	%eax, %eax
-	movl	8(%ebp), %eax
+	movl	32(%esp), %eax
+	movl	36(%esp), %ebx
+	movl	40(%esp), %esi
 	subl	$50, %eax
 	cmpl	$4, %eax
 	ja	.L2
-	movl	.L4(,%eax,4), %eax
-	jmp	*%eax
+	jmp	*.L4(,%eax,4)
 	.section	.rodata
 	.align 4
 	.align 4
@@ -42,137 +43,127 @@ run_func:
 	.long	.L7
 	.long	.L8
 	.text
-.L3:
-	subl	$12, %esp
-	pushl	-32(%ebp)
-	call	pstrlen
-	addl	$16, %esp
-	movsbl	%al, %ebx
-	subl	$12, %esp
-	pushl	-28(%ebp)
-	call	pstrlen
-	addl	$16, %esp
-	movsbl	%al, %eax
-	subl	$4, %esp
-	pushl	%ebx
-	pushl	%eax
-	pushl	$.LC0
-	call	printf
-	addl	$16, %esp
-	jmp	.L1
-.L5:
-	subl	$8, %esp
-	pushl	-32(%ebp)
-	pushl	-28(%ebp)
-	call	pstrcpy
-	addl	$16, %esp
-	movl	-28(%ebp), %eax
-	leal	1(%eax), %ebx
-	subl	$12, %esp
-	pushl	-28(%ebp)
-	call	pstrlen
-	addl	$16, %esp
-	movsbl	%al, %eax
-	subl	$4, %esp
-	pushl	%ebx
-	pushl	%eax
-	pushl	$.LC1
-	call	printf
-	addl	$16, %esp
-	jmp	.L1
-.L6:
-	subl	$8, %esp
-	leal	-20(%ebp), %eax
-	pushl	%eax
-	pushl	$.LC2
-	call	__isoc99_scanf
-	addl	$16, %esp
-	subl	$8, %esp
-	leal	-16(%ebp), %eax
-	pushl	%eax
-	pushl	$.LC2
-	call	__isoc99_scanf
-	addl	$16, %esp
-	movl	-16(%ebp), %eax
-	movsbl	%al, %edx
-	movl	-20(%ebp), %eax
-	movsbl	%al, %eax
-	pushl	%edx
-	pushl	%eax
-	pushl	-32(%ebp)
-	pushl	-28(%ebp)
-	call	pstrijcpy
-	addl	$16, %esp
-	movl	-28(%ebp), %eax
-	leal	1(%eax), %ebx
-	subl	$12, %esp
-	pushl	-28(%ebp)
-	call	pstrlen
-	addl	$16, %esp
-	movsbl	%al, %eax
-	subl	$4, %esp
-	pushl	%ebx
-	pushl	%eax
-	pushl	$.LC1
-	call	printf
-	addl	$16, %esp
-	jmp	.L1
+	.p2align 4,,10
+	.p2align 3
 .L7:
 	subl	$8, %esp
-	pushl	-32(%ebp)
-	pushl	-28(%ebp)
+	pushl	%esi
+	pushl	%ebx
 	call	pstrcmp
-	addl	$16, %esp
-	subl	$8, %esp
+	addl	$12, %esp
+.L12:
 	pushl	%eax
 	pushl	$.LC3
-	call	printf
+	pushl	$1
+	call	__printf_chk
 	addl	$16, %esp
-	jmp	.L1
+.L1:
+	movl	12(%esp), %eax
+	xorl	%gs:20, %eax
+	jne	.L15
+	addl	$20, %esp
+	popl	%ebx
+	popl	%esi
+	ret
+	.p2align 4,,10
+	.p2align 3
 .L8:
 	subl	$8, %esp
-	leal	-20(%ebp), %eax
+	leal	12(%esp), %eax
 	pushl	%eax
 	pushl	$.LC2
 	call	__isoc99_scanf
-	addl	$16, %esp
-	subl	$8, %esp
-	leal	-16(%ebp), %eax
+	popl	%eax
+	popl	%edx
+	leal	16(%esp), %eax
 	pushl	%eax
 	pushl	$.LC2
 	call	__isoc99_scanf
-	addl	$16, %esp
-	movl	-16(%ebp), %eax
-	movsbl	%al, %edx
-	movl	-20(%ebp), %eax
-	movsbl	%al, %eax
-	pushl	%edx
+	movsbl	24(%esp), %eax
 	pushl	%eax
-	pushl	-32(%ebp)
-	pushl	-28(%ebp)
+	movsbl	24(%esp), %eax
+	pushl	%eax
+	pushl	%esi
+	pushl	%ebx
 	call	pstrijcmp
-	addl	$16, %esp
-	subl	$8, %esp
+	addl	$28, %esp
+	jmp	.L12
+	.p2align 4,,10
+	.p2align 3
+.L3:
+	subl	$12, %esp
+	pushl	%esi
+	call	pstrlen
+	movl	%eax, %esi
+	movl	%ebx, (%esp)
+	call	pstrlen
+	movl	%esi, %edx
+	movsbl	%al, %eax
+	movsbl	%dl, %esi
+	pushl	%esi
 	pushl	%eax
-	pushl	$.LC3
-	call	printf
-	addl	$16, %esp
+	pushl	$.LC0
+	pushl	$1
+	call	__printf_chk
+	addl	$32, %esp
 	jmp	.L1
+	.p2align 4,,10
+	.p2align 3
+.L5:
+	subl	$8, %esp
+	pushl	%esi
+	pushl	%ebx
+	call	pstrcpy
+	movl	%ebx, (%esp)
+.L13:
+	call	pstrlen
+	addl	$1, %ebx
+	movsbl	%al, %eax
+	pushl	%ebx
+	pushl	%eax
+	pushl	$.LC1
+	pushl	$1
+	call	__printf_chk
+	addl	$32, %esp
+	jmp	.L1
+	.p2align 4,,10
+	.p2align 3
+.L6:
+	subl	$8, %esp
+	leal	12(%esp), %eax
+	pushl	%eax
+	pushl	$.LC2
+	call	__isoc99_scanf
+	popl	%ecx
+	popl	%eax
+	leal	16(%esp), %eax
+	pushl	%eax
+	pushl	$.LC2
+	call	__isoc99_scanf
+	movsbl	24(%esp), %eax
+	pushl	%eax
+	movsbl	24(%esp), %eax
+	pushl	%eax
+	pushl	%esi
+	pushl	%ebx
+	call	pstrijcpy
+	addl	$20, %esp
+	pushl	%ebx
+	jmp	.L13
+	.p2align 4,,10
+	.p2align 3
 .L2:
 	subl	$12, %esp
 	pushl	$.LC4
 	call	puts
 	addl	$16, %esp
-	nop
-.L1:
-	movl	-12(%ebp), %eax
-	xorl	%gs:20, %eax
-	je	.L10
+	jmp	.L1
+.L15:
 	call	__stack_chk_fail
-.L10:
-	movl	-4(%ebp), %ebx
-	leave
-	ret
 	.size	run_func, .-run_func
-	.ident	"GCC: (Gentoo 4.9.2 p1.0, pie-0.6.1) 4.9.2"
+	.section	.text.unlikely
+.LCOLDE5:
+	.text
+.LHOTE5:
+	.ident	"GCC: (Gentoo 4.9.1 p1.0, pie-0.6.0) 4.9.1"
 	.section	.note.GNU-stack,"",@progbits
