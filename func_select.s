@@ -1,169 +1,135 @@
-	.file	"func_select.c"
-	.section	.rodata.str1.4,"aMS",@progbits,1
-	.align 4
-.LC0:
+	.section	.rodata
+str_twolen:
 	.string	"first pstring length %d, second pstring length: %d\n"
-	.section	.rodata.str1.1,"aMS",@progbits,1
-.LC1:
+str_outres:
 	.string	"length: %d, string: %s\n"
-.LC2:
+str_scanf:
 	.string	"%d"
-.LC3:
+str_cmpres:
 	.string	"compare result: %d\n"
-.LC4:
+str_inval:
 	.string	"invalid option!"
-	.section	.text.unlikely,"ax",@progbits
-.LCOLDB5:
+jump_table:
+	.long	case_50
+	.long	case_51
+	.long	case_52
+	.long	case_53
+	.long	case_54
 	.text
-.LHOTB5:
-	.p2align 4,,15
 	.globl	run_func
 	.type	run_func, @function
 run_func:
-	pushl	%esi
+	pushl	%esi				# callee save esi on stack
+	pushl	%ebx				# callee save ebx on stack
+	subl	$20,		%esp
+	movl	%gs:20, 	%eax
+	movl	%eax, 		12(%esp)
+	xorl	%eax, 		%eax
+	movl	32(%esp),	%eax    # get first parameter (opt) from stack
+	movl	36(%esp),	%ebx    # get second parameter (*p1) from stack
+	movl	40(%esp),	%esi    # get third parameter (*p2) from stack
+	subl	$50, 		%eax	# substract 50 from first parameter
+	cmpl	$4, 		%eax    # compare eax with 4
+	ja		case_default        # by default, goto case_default label
+	jmp		*jump_table(,%eax,4)# else jump using jump table
+case_50:
+	subl	$12, 	%esp        # reserve space on stack for three variables
+	pushl	%esi 
+	call	pstrlen
+	movl	%eax,	%esi
+	movl	%ebx,	(%esp)
+	call 	pstrlen
+	movl	%esi,	%edx
+	movsbl	%al, 	%eax
+	movsbl	%dl, 	%esi
+	pushl	%esi                # put third parameter on stack
+	pushl	%eax                # put second parameter on stack
+	pushl	$str_twolen         # put first parameter on stack
+	call	printf
+	addl	$32, 	%esp
+	jmp		exit
+case_51:
+	subl	$8, 	%esp        # reserve space for two variables on stack
+	pushl	%esi                # put pstrcpy params on stack
 	pushl	%ebx
-	subl	$20, %esp
-	movl	%gs:20, %eax
-	movl	%eax, 12(%esp)
-	xorl	%eax, %eax
-	movl	32(%esp), %eax
-	movl	36(%esp), %ebx
-	movl	40(%esp), %esi
-	subl	$50, %eax
-	cmpl	$4, %eax
-	ja	.L2
-	jmp	*.L4(,%eax,4)
-	.section	.rodata
-	.align 4
-	.align 4
-.L4:
-	.long	.L3
-	.long	.L5
-	.long	.L6
-	.long	.L7
-	.long	.L8
-	.text
-	.p2align 4,,10
-	.p2align 3
-.L7:
+	call	pstrcpy
+	movl	%ebx,   (%esp)
+print_strlen:
+    call	pstrlen             # call pstrlen
+	addl	$1, 	%ebx
+	movsbl	%al, 	%eax
+	pushl	%ebx				# put printf params on stack and call it
+	pushl	%eax
+	pushl	$str_outres
+	call	printf
+	addl	$32, %esp
+	jmp		exit
+case_52:
 	subl	$8, %esp
+	leal	12(%esp), 	%eax
+	pushl	%eax
+	pushl	$str_scanf
+	call	scanf
+    popl    %ecx
+    popl    %eax
+	leal	16(%esp), 	%eax
+	pushl	%eax
+	pushl	$str_scanf
+	call	scanf
+	movsbl	24(%esp),   %eax
+    pushl   %eax
+	movsbl	24(%esp),   %eax
+	pushl	%eax
+    pushl   %esi
+    pushl   %ebx
+	call	pstrijcpy
+	addl	$20,        %esp
+    pushl   %ebx
+    jmp     print_strlen 
+case_53:
+	subl	$8, 		%esp
 	pushl	%esi
-	pushl	%ebx
+    pushl   %ebx
 	call	pstrcmp
-	addl	$12, %esp
-.L12:
-	pushl	%eax
-	pushl	$.LC3
-	pushl	$1
-	call	__printf_chk
-	addl	$16, %esp
-.L1:
-	movl	12(%esp), %eax
-	xorl	%gs:20, %eax
-	jne	.L15
-	addl	$20, %esp
-	popl	%ebx
-	popl	%esi
-	ret
-	.p2align 4,,10
-	.p2align 3
-.L8:
+	addl	$12, 		%esp
+print_compare:
+	pushl	%eax				# eax contains pstrcmp result
+	pushl	$str_cmpres
+	call	printf
+	addl	$16, 		%esp
+    jmp     exit
+case_54:
 	subl	$8, %esp
-	leal	12(%esp), %eax
+	leal	12(%esp), 	%eax	# calculate address of 'i' pstrijcmp parameter and put to eax
 	pushl	%eax
-	pushl	$.LC2
-	call	__isoc99_scanf
+	pushl	$str_scanf
+	call	scanf
 	popl	%eax
 	popl	%edx
-	leal	16(%esp), %eax
+	leal	16(%esp), 	%eax	# calculate address of 'j' pstrijcmp parameter and put to eax
 	pushl	%eax
-	pushl	$.LC2
-	call	__isoc99_scanf
-	movsbl	24(%esp), %eax
+	pushl	$str_scanf
+	call	scanf
+	movsbl	24(%esp), 	%eax
 	pushl	%eax
-	movsbl	24(%esp), %eax
+	movsbl	24(%esp), 	%eax
 	pushl	%eax
 	pushl	%esi
 	pushl	%ebx
 	call	pstrijcmp
-	addl	$28, %esp
-	jmp	.L12
-	.p2align 4,,10
-	.p2align 3
-.L3:
-	subl	$12, %esp
-	pushl	%esi
-	call	pstrlen
-	movl	%eax, %esi
-	movl	%ebx, (%esp)
-	call	pstrlen
-	movl	%esi, %edx
-	movsbl	%al, %eax
-	movsbl	%dl, %esi
-	pushl	%esi
-	pushl	%eax
-	pushl	$.LC0
-	pushl	$1
-	call	__printf_chk
-	addl	$32, %esp
-	jmp	.L1
-	.p2align 4,,10
-	.p2align 3
-.L5:
-	subl	$8, %esp
-	pushl	%esi
-	pushl	%ebx
-	call	pstrcpy
-	movl	%ebx, (%esp)
-.L13:
-	call	pstrlen
-	addl	$1, %ebx
-	movsbl	%al, %eax
-	pushl	%ebx
-	pushl	%eax
-	pushl	$.LC1
-	pushl	$1
-	call	__printf_chk
-	addl	$32, %esp
-	jmp	.L1
-	.p2align 4,,10
-	.p2align 3
-.L6:
-	subl	$8, %esp
-	leal	12(%esp), %eax
-	pushl	%eax
-	pushl	$.LC2
-	call	__isoc99_scanf
-	popl	%ecx
-	popl	%eax
-	leal	16(%esp), %eax
-	pushl	%eax
-	pushl	$.LC2
-	call	__isoc99_scanf
-	movsbl	24(%esp), %eax
-	pushl	%eax
-	movsbl	24(%esp), %eax
-	pushl	%eax
-	pushl	%esi
-	pushl	%ebx
-	call	pstrijcpy
-	addl	$20, %esp
-	pushl	%ebx
-	jmp	.L13
-	.p2align 4,,10
-	.p2align 3
-.L2:
-	subl	$12, %esp
-	pushl	$.LC4
+	addl	$28, 		%esp
+	jmp		print_compare
+case_default:
+	subl	$12, 		%esp
+	pushl	$str_inval
 	call	puts
-	addl	$16, %esp
-	jmp	.L1
-.L15:
-	call	__stack_chk_fail
-	.size	run_func, .-run_func
-	.section	.text.unlikely
-.LCOLDE5:
-	.text
-.LHOTE5:
-	.ident	"GCC: (Gentoo 4.9.1 p1.0, pie-0.6.0) 4.9.1"
-	.section	.note.GNU-stack,"",@progbits
+	addl	$16, 		%esp
+	nop
+exit:
+    movl	12(%esp),	%eax
+    xorl    %gs:20,     %eax
+    addl    20(%esp),   %esp
+    popl    %ebx                # restore saved registers
+    popl    %esi
+	ret
+.size       run_func,   .-run_func

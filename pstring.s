@@ -1,242 +1,183 @@
 	.file	"pstring.c"
-	.section	.text.unlikely,"ax",@progbits
-.LCOLDB0:
 	.text
-.LHOTB0:
-	.p2align 4,,15
 	.globl	pstrlen
 	.type	pstrlen, @function
 pstrlen:
-	movl	4(%esp), %eax
+	pushl	%ebp
+	movl	%esp, %ebp
+	movl	8(%ebp), %eax
 	movzbl	(%eax), %eax
+	popl	%ebp
 	ret
 	.size	pstrlen, .-pstrlen
-	.section	.text.unlikely
-.LCOLDE0:
-	.text
-.LHOTE0:
-	.section	.text.unlikely
-.LCOLDB1:
-	.text
-.LHOTB1:
-	.p2align 4,,15
 	.globl	pstrcpy
 	.type	pstrcpy, @function
 pstrcpy:
-	pushl	%edi
-	pushl	%esi
-	pushl	%ebx
-	movl	20(%esp), %esi
-	movl	16(%esp), %eax
-	movzbl	(%esi), %edi
-	movl	%edi, %ebx
-	cmpb	(%eax), %bl
-	jg	.L3
-	testb	%bl, %bl
-	jle	.L6
-	leal	-1(%edi), %ebx
-	xorl	%edx, %edx
-	movzbl	%bl, %ebx
-	addl	$1, %ebx
-	.p2align 4,,10
-	.p2align 3
-.L5:
-	movzbl	1(%esi,%edx), %ecx
-	movb	%cl, 1(%eax,%edx)
-	addl	$1, %edx
-	cmpl	%ebx, %edx
-	jne	.L5
-.L6:
-	movl	%edi, %ebx
-	movb	%bl, (%eax)
-.L3:
-	popl	%ebx
-	popl	%esi
-	popl	%edi
+	pushl	%ebp
+	movl	%esp, %ebp
+	subl	$8, %esp
+	movl	12(%ebp), %eax
+	movzbl	(%eax), %eax
+	movsbl	%al, %eax
+	pushl	%eax
+	pushl	$0
+	pushl	12(%ebp)
+	pushl	8(%ebp)
+	call	pstrijcpy
+	addl	$16, %esp
+	leave
 	ret
 	.size	pstrcpy, .-pstrcpy
-	.section	.text.unlikely
-.LCOLDE1:
-	.text
-.LHOTE1:
-	.section	.text.unlikely
-.LCOLDB2:
-	.text
-.LHOTB2:
-	.p2align 4,,15
 	.globl	pstrijcpy
 	.type	pstrijcpy, @function
 pstrijcpy:
-	pushl	%edi
-	pushl	%esi
-	pushl	%ebx
-	movl	20(%esp), %esi
-	movl	16(%esp), %eax
-	movzbl	(%esi), %edi
-	movl	%edi, %ebx
-	cmpb	(%eax), %bl
-	jg	.L11
-	testb	%bl, %bl
-	jle	.L14
-	leal	-1(%edi), %ebx
-	xorl	%edx, %edx
-	movzbl	%bl, %ebx
-	addl	$1, %ebx
-	.p2align 4,,10
-	.p2align 3
-.L13:
-	movzbl	1(%esi,%edx), %ecx
-	movb	%cl, 1(%eax,%edx)
-	addl	$1, %edx
-	cmpl	%ebx, %edx
-	jne	.L13
-.L14:
-	movl	%edi, %ebx
-	movb	%bl, (%eax)
-.L11:
-	popl	%ebx
-	popl	%esi
-	popl	%edi
+	pushl	%ebp
+	movl	%esp, %ebp
+	subl	$8, %esp
+	movl	16(%ebp), %edx
+	movl	20(%ebp), %eax
+	movb	%dl, -4(%ebp)
+	movb	%al, -8(%ebp)
+	movl	12(%ebp), %eax
+	movzbl	(%eax), %edx
+	movl	8(%ebp), %eax
+	movzbl	(%eax), %eax
+	cmpb	%al, %dl
+	jle	.L6
+	movl	8(%ebp), %eax
+	jmp	.L7
+.L6:
+	movb	$0, -4(%ebp)
+	jmp	.L8
+.L9:
+	movsbl	-4(%ebp), %eax
+	movsbl	-4(%ebp), %edx
+	movl	12(%ebp), %ecx
+	movzbl	1(%ecx,%edx), %ecx
+	movl	8(%ebp), %edx
+	movb	%cl, 1(%edx,%eax)
+	movzbl	-4(%ebp), %eax
+	addl	$1, %eax
+	movb	%al, -4(%ebp)
+.L8:
+	movl	12(%ebp), %eax
+	movzbl	(%eax), %eax
+	cmpb	-4(%ebp), %al
+	jg	.L9
+	movl	12(%ebp), %eax
+	movzbl	(%eax), %edx
+	movl	8(%ebp), %eax
+	movb	%dl, (%eax)
+	movl	8(%ebp), %eax
+.L7:
+	leave
 	ret
 	.size	pstrijcpy, .-pstrijcpy
-	.section	.text.unlikely
-.LCOLDE2:
-	.text
-.LHOTE2:
-	.section	.rodata.str1.1,"aMS",@progbits,1
-.LC3:
+	.globl	pstrcmp
+	.type	pstrcmp, @function
+pstrcmp:
+	pushl	%ebp
+	movl	%esp, %ebp
+	subl	$8, %esp
+	movl	8(%ebp), %eax
+	movzbl	(%eax), %eax
+	movsbl	%al, %eax
+	pushl	%eax
+	pushl	$0
+	pushl	12(%ebp)
+	pushl	8(%ebp)
+	call	pstrijcmp
+	addl	$16, %esp
+	leave
+	ret
+	.size	pstrcmp, .-pstrcmp
+	.section	.rodata
+str_invalid:
 	.string	"invalid input!"
-	.section	.text.unlikely
-.LCOLDB4:
 	.text
-.LHOTB4:
-	.p2align 4,,15
 	.globl	pstrijcmp
 	.type	pstrijcmp, @function
 pstrijcmp:
 	pushl	%ebp
-	pushl	%edi
-	pushl	%esi
-	pushl	%ebx
+	movl	%esp, %ebp
+	subl	$40, %esp
+	movl	16(%ebp), %edx
+	movl	20(%ebp), %eax
+	movb	%dl, -28(%ebp)
+	movb	%al, -32(%ebp)
+	movzbl	-28(%ebp), %eax
+	cmpb	-32(%ebp), %al
+	jle	.L13
 	subl	$12, %esp
-	movl	44(%esp), %esi
-	movl	40(%esp), %ebx
-	movl	32(%esp), %edi
-	movl	36(%esp), %ebp
-	movl	%esi, %eax
-	cmpb	%al, %bl
-	jg	.L35
-.L18:
-	movzbl	(%edi), %eax
-	cmpb	%al, %bl
-	jg	.L19
-	cmpb	0(%ebp), %bl
-	jg	.L19
-.L20:
-	movl	%esi, %edx
-	cmpb	%dl, %al
-	jl	.L21
-	cmpb	0(%ebp), %dl
-	jg	.L21
-.L22:
-	movsbl	%bl, %eax
-	movl	%esi, %ebx
-	movsbl	%bl, %edx
-	cmpl	%edx, %eax
-	jg	.L27
-	movzbl	1(%ebp,%eax), %ebx
-	cmpb	%bl, 1(%edi,%eax)
-	jg	.L30
-	.p2align 4,,10
-	.p2align 3
-.L34:
-	jl	.L31
-	addl	$1, %eax
-	cmpl	%edx, %eax
-	jg	.L27
-	movzbl	1(%ebp,%eax), %ecx
-	cmpb	%cl, 1(%edi,%eax)
-	jle	.L34
-.L30:
-	addl	$12, %esp
-	movl	$1, %eax
-	popl	%ebx
-	popl	%esi
-	popl	%edi
-	popl	%ebp
-	ret
-	.p2align 4,,10
-	.p2align 3
-.L21:
-	subl	$12, %esp
-	pushl	$.LC3
+	pushl	$str_invalid
 	call	puts
 	addl	$16, %esp
-	jmp	.L22
-	.p2align 4,,10
-	.p2align 3
-.L19:
+.L13:
+	movl	8(%ebp), %eax
+	movzbl	(%eax), %eax
+	cmpb	-28(%ebp), %al
+	jl	.L14
+	movl	12(%ebp), %eax
+	movzbl	(%eax), %eax
+	cmpb	-28(%ebp), %al
+	jge	.L15
+.L14:
 	subl	$12, %esp
-	pushl	$.LC3
-	call	puts
-	movzbl	(%edi), %eax
-	addl	$16, %esp
-	jmp	.L20
-	.p2align 4,,10
-	.p2align 3
-.L27:
-	addl	$12, %esp
-	xorl	%eax, %eax
-	popl	%ebx
-	popl	%esi
-	popl	%edi
-	popl	%ebp
-	ret
-	.p2align 4,,10
-	.p2align 3
-.L31:
-	addl	$12, %esp
-	movl	$-1, %eax
-	popl	%ebx
-	popl	%esi
-	popl	%edi
-	popl	%ebp
-	ret
-	.p2align 4,,10
-	.p2align 3
-.L35:
-	subl	$12, %esp
-	pushl	$.LC3
+	pushl	$str_invalid
 	call	puts
 	addl	$16, %esp
+.L15:
+	movl	8(%ebp), %eax
+	movzbl	(%eax), %eax
+	cmpb	-32(%ebp), %al
+	jl	.L16
+	movl	12(%ebp), %eax
+	movzbl	(%eax), %eax
+	cmpb	-32(%ebp), %al
+	jge	.L17
+.L16:
+	subl	$12, %esp
+	pushl	$str_invalid
+	call	puts
+	addl	$16, %esp
+.L17:
+	movsbl	-28(%ebp), %eax
+	movl	%eax, -12(%ebp)
 	jmp	.L18
-	.size	pstrijcmp, .-pstrijcmp
-	.section	.text.unlikely
-.LCOLDE4:
-	.text
-.LHOTE4:
-	.section	.text.unlikely
-.LCOLDB5:
-	.text
-.LHOTB5:
-	.p2align 4,,15
-	.globl	pstrcmp
-	.type	pstrcmp, @function
-pstrcmp:
-	subl	$12, %esp
-	movl	16(%esp), %eax
-	movsbl	(%eax), %edx
-	pushl	%edx
-	pushl	$0
-	pushl	28(%esp)
-	pushl	%eax
-	call	pstrijcmp
-	addl	$28, %esp
+.L22:
+	movl	8(%ebp), %edx
+	movl	-12(%ebp), %eax
+	addl	%edx, %eax
+	movzbl	1(%eax), %edx
+	movl	12(%ebp), %ecx
+	movl	-12(%ebp), %eax
+	addl	%ecx, %eax
+	movzbl	1(%eax), %eax
+	cmpb	%al, %dl
+	jle	.L19
+	movl	$1, %eax
+	jmp	.L20
+.L19:
+	movl	8(%ebp), %edx
+	movl	-12(%ebp), %eax
+	addl	%edx, %eax
+	movzbl	1(%eax), %edx
+	movl	12(%ebp), %ecx
+	movl	-12(%ebp), %eax
+	addl	%ecx, %eax
+	movzbl	1(%eax), %eax
+	cmpb	%al, %dl
+	jge	.L21
+	movl	$-1, %eax
+	jmp	.L20
+.L21:
+	addl	$1, -12(%ebp)
+.L18:
+	movsbl	-32(%ebp), %eax
+	cmpl	-12(%ebp), %eax
+	jge	.L22
+	movl	$0, %eax
+.L20:
+	leave
 	ret
-	.size	pstrcmp, .-pstrcmp
-	.section	.text.unlikely
-.LCOLDE5:
-	.text
-.LHOTE5:
-	.ident	"GCC: (Gentoo 4.9.1 p1.0, pie-0.6.0) 4.9.1"
-	.section	.note.GNU-stack,"",@progbits
+	.size	pstrijcmp, .-pstrijcmp
