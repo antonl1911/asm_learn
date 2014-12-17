@@ -1,4 +1,4 @@
-	.section	.rodata
+	.section	.rodata         # read-only data section
 str_twolen:
 	.string	"first pstring length %d, second pstring length: %d\n"
 str_outres:
@@ -15,12 +15,12 @@ jump_table:
 	.long	case_52
 	.long	case_53
 	.long	case_54
-	.text
-	.globl	run_func
-	.type	run_func, @function
-run_func:
-	pushl	%esi				# callee save esi on stack
-	pushl	%ebx				# callee save ebx on stack
+	.text                       # the beginning of the code
+	.globl	run_func            # global symbol name
+	.type	run_func, @function # label run_func, representing the beginning of a function
+run_func:                       # run_func code follows
+	pushl	%esi				# callee save esi to stack
+	pushl	%ebx				# callee save ebx to stack
 	subl	$20,		%esp    # make space on stack
 	movl	32(%esp),	%eax    # get first parameter (opt) from stack
 	movl	36(%esp),	%ebx    # get second parameter (*p1) from stack
@@ -29,37 +29,33 @@ run_func:
 	cmpl	$4, 		%eax    # compare eax with 4
 	ja		case_default        # by default, goto case_default label
 	jmp		*jump_table(,%eax,4)# else jump using jump table
-case_50:
+case_50:                        # if 50 was entered by user
 	subl	$12, 	%esp        # reserve space on stack for three variables
-	pushl	%esi 
-	call	pstrlen
-	movl	%eax,	%esi
-	movl	%ebx,	(%esp)
-	call 	pstrlen
-	movl	%esi,	%edx
-	movsbl	%al, 	%eax
-	movsbl	%dl, 	%esi
-	pushl	%esi                # put third parameter on stack
-	pushl	%eax                # put second parameter on stack
-	pushl	$str_twolen         # put first parameter on stack
-	call	printf
-	addl	$12, 	%esp
+	pushl	%esi                # put *p2 to stack
+	call	pstrlen             # call pstrlen (*p2)
+	movl	%eax,	%esi        # save pstrlen result to %esi
+	movl	%ebx,	(%esp)      # put *p1 to stack
+	call 	pstrlen             # call pstrlen(*p1)
+	pushl	%esi                # put third parameter to stack
+	pushl	%eax                # put second parameter to stack
+	pushl	$str_twolen         # put first parameter to stack
+	call	printf              # print the results
+	addl	$28, 	%esp        # restore stack pointer
 	jmp		exit
 case_51:
 	subl	$8, 	%esp        # reserve space for two variables on stack
-	pushl	%esi                # put pstrcpy params on stack
-	pushl	%ebx
-	call	pstrcpy
-	movl	%ebx,   (%esp)
+	pushl	%esi                # put *p2 to stack
+	pushl	%ebx                # put *p1 to stack 
+	call	pstrcpy             # call pstrcpy
+	movl	%ebx,   (%esp)      # save result on stack
 print_strlen:
     call	pstrlen             # call pstrlen
-	addl	$1, 	%ebx
-	movsbl	%al, 	%eax
-	pushl	%ebx				# put printf params on stack and call it
-	pushl	%eax
-	pushl	$str_outres
-	call	printf
-	addl	$32, %esp
+	addl	$1, 	%ebx        # move pointer from beginning of p1 to p1->str
+	pushl	%ebx				# put p1->str to stack
+	pushl	%eax                # put pstrlen result to stack
+	pushl	$str_outres         # put format string pointer str_outres to stack
+	call	printf              # call printf(str_outres, %eax, %ebx);
+	addl	$28, %esp
 	jmp		exit
 case_52:
 	subl	$8, %esp
@@ -93,7 +89,7 @@ print_compare:
 	pushl	%eax				# eax contains pstrcmp result
 	pushl	$str_cmpres
 	call	printf
-	addl	$16, 		%esp
+	addl	$12, 		%esp
     jmp     exit
 case_54:
 	subl	$8, %esp
@@ -124,7 +120,7 @@ case_default:
 	nop
 exit:
     addl    $20,        %esp    # return 20 bytes to stack
-    popl    %ebx                # restore saved registers
-    popl    %esi
+    popl    %ebx                # restore saved registers: %ebx
+    popl    %esi                # and %esi
 	ret                         # return from function
 .size       run_func,   .-run_func
