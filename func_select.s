@@ -30,32 +30,32 @@ run_func:                       # run_func code follows
 	ja		case_default        # by default, goto case_default label
 	jmp		*jump_table(,%eax,4)# else jump using jump table
 case_50:                        # if 50 was entered by user
-	subl	$12, 	%esp        # reserve space on stack for three variables
+	subl	$12, 	    %esp    # reserve 12 bytes on stack
 	pushl	%esi                # put *p2 to stack
 	call	pstrlen             # call pstrlen (*p2)
-	movl	%eax,	%esi        # save pstrlen result to %esi
-	movl	%ebx,	(%esp)      # put *p1 to stack
+	movl	%eax,	    %esi    # save pstrlen result to %esi
+	movl	%ebx,	    (%esp)  # put *p1 to stack
 	call 	pstrlen             # call pstrlen(*p1)
 	pushl	%esi                # put third parameter to stack
 	pushl	%eax                # put second parameter to stack
 	pushl	$str_twolen         # put first parameter to stack
 	call	printf              # print the results
-	addl	$28, 	%esp        # restore stack pointer
+	addl	$28, 	    %esp    # restore stack pointer
 	jmp		exit
 case_51:
-	subl	$8, 	%esp        # reserve space for two variables on stack
+	subl	$8, 	    %esp    # reserve 8 bytes on stack
 	pushl	%esi                # put *p2 to stack
 	pushl	%ebx                # put *p1 to stack 
 	call	pstrcpy             # call pstrcpy
-	movl	%ebx,   (%esp)      # save result on stack
+	movl	%ebx,       (%esp)  # save result on stack
 print_strlen:
     call	pstrlen             # call pstrlen
-	addl	$1, 	%ebx        # move pointer from beginning of p1 to p1->str
+	addl	$1, 	    %ebx    # move pointer from beginning p1 to p1->str
 	pushl	%ebx				# put p1->str to stack
 	pushl	%eax                # put pstrlen result to stack
 	pushl	$str_outres         # put format string pointer str_outres to stack
 	call	printf              # call printf(str_outres, %eax, %ebx);
-	addl	$28, %esp
+	addl	$28,        %esp
 	jmp		exit
 case_52:
 	subl	$8, %esp
