@@ -124,6 +124,16 @@ run_func:
 	pushl	$.LC1
 	pushl	$1
 	call	__printf_chk
+	addl	$20, %esp
+	pushl	%esi
+	addl	$1, %esi
+	call	pstrlen
+	movsbl	%al, %eax
+	pushl	%esi
+	pushl	%eax
+	pushl	$.LC1
+	pushl	$1
+	call	__printf_chk
 	addl	$32, %esp
 	jmp	.L1
 	.p2align 4,,10

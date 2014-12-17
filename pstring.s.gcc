@@ -26,25 +26,25 @@ pstrcpy:
 	pushl	%edi
 	pushl	%esi
 	pushl	%ebx
-	movl	20(%esp), %esi
+	movl	20(%esp), %ebx
 	movl	16(%esp), %eax
-	movzbl	(%esi), %edi
-	movl	%edi, %ebx
-	cmpb	(%eax), %bl
+	movzbl	(%ebx), %edi
+	movl	%edi, %ecx
+	cmpb	(%eax), %cl
 	jg	.L3
-	testb	%bl, %bl
-	jle	.L6
-	leal	-1(%edi), %ebx
+	testb	%cl, %cl
+	js	.L6
+	movl	%edi, %ecx
 	xorl	%edx, %edx
-	movzbl	%bl, %ebx
-	addl	$1, %ebx
+	movsbl	%cl, %esi
+	addl	$1, %esi
 	.p2align 4,,10
 	.p2align 3
 .L5:
-	movzbl	1(%esi,%edx), %ecx
+	movzbl	1(%ebx,%edx), %ecx
 	movb	%cl, 1(%eax,%edx)
 	addl	$1, %edx
-	cmpl	%ebx, %edx
+	cmpl	%esi, %edx
 	jne	.L5
 .L6:
 	movl	%edi, %ebx
@@ -72,15 +72,16 @@ pstrijcpy:
 	pushl	%ebx
 	movl	20(%esp), %esi
 	movl	16(%esp), %eax
+	movl	24(%esp), %edx
+	movl	28(%esp), %ebx
 	movzbl	(%esi), %edi
-	movl	%edi, %ebx
-	cmpb	(%eax), %bl
+	movl	%edi, %ecx
+	cmpb	(%eax), %cl
 	jg	.L11
-	testb	%bl, %bl
-	jle	.L14
-	leal	-1(%edi), %ebx
-	xorl	%edx, %edx
-	movzbl	%bl, %ebx
+	movsbl	%dl, %edx
+	movsbl	%bl, %ebx
+	cmpl	%ebx, %edx
+	jg	.L14
 	addl	$1, %ebx
 	.p2align 4,,10
 	.p2align 3
@@ -238,5 +239,5 @@ pstrcmp:
 .LCOLDE5:
 	.text
 .LHOTE5:
-	.ident	"GCC: (Gentoo 4.9.1 p1.0, pie-0.6.0) 4.9.1"
+	.ident	"GCC: (Gentoo 4.9.2 p1.0, pie-0.6.1) 4.9.2"
 	.section	.note.GNU-stack,"",@progbits

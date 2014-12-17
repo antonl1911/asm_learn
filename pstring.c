@@ -10,11 +10,12 @@ Pstring* pstrcpy(Pstring* dst, Pstring* src)
 }
 Pstring* pstrijcpy(Pstring* dst, Pstring* src, char i, char j)
 {
+    int n;
 	if (src->len > dst->len)
 		return dst;
-	for( i = 0; i < src->len; i++)
+	for( n = i; n <= j; n++)
 	{
-		dst->str[i] = src->str[i];
+		dst->str[n] = src->str[n];
 	}
 	dst->len = src->len;
 	return dst;

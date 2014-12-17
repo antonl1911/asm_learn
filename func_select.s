@@ -40,7 +40,7 @@ case_50:                        # if 50 was entered by user
 	pushl	%eax                # put second parameter to stack
 	pushl	$str_twolen         # put first parameter to stack
 	call	printf              # print the results
-	addl	$28, 	    %esp    # restore stack pointer
+	addl	$28, 	    %esp    # restore stack pointer: 12 (initial subl) + 16 (4 bytes x 4 pushl)
 	jmp		exit
 case_51:
 	subl	$8, 	    %esp    # reserve 8 bytes on stack
@@ -55,30 +55,38 @@ print_strlen:
 	pushl	%eax                # put pstrlen result to stack
 	pushl	$str_outres         # put format string pointer str_outres to stack
 	call	printf              # call printf(str_outres, %eax, %ebx);
-	addl	$28,        %esp
+	addl	$16,        %esp    # restore stack pointer: 16 is (4 bytes x 4 pushl) 
+    pushl   %esi
+    addl    $1,         %esi    # move pointer from beginning of p2 to p2->str
+    call	pstrlen             # call pstrlen
+	pushl	%esi				# put p1->str to stack
+	pushl	%eax                # put pstrlen result to stack
+	pushl	$str_outres         # put format string pointer str_outres to stack
+	call	printf              # call printf(str_outres, %eax, %ebx);
+	addl	$28,        %esp    # restore stack pointer: 8 (initial subl) + 20 (4 bytes x 4 pushl) 
 	jmp		exit
 case_52:
-	subl	$8, %esp
-	leal	12(%esp), 	%eax
-	pushl	%eax
-	pushl	$str_scanf
-	call	scanf
-    popl    %ecx
-    popl    %eax
-	leal	16(%esp), 	%eax
-	pushl	%eax
-	pushl	$str_scanf
-	call	scanf
-	movsbl	24(%esp),   %eax
-    pushl   %eax
-	movsbl	24(%esp),   %eax
-	pushl	%eax
-    pushl   %esi
-    pushl   %ebx
-	call	pstrijcpy
-	addl	$20,        %esp
-    pushl   %ebx
-    jmp     print_strlen 
+	subl	$8, %esp            # reserve 8 bytes on stack
+	leal	12(%esp), 	%eax    # load address of local variable into %eax
+	pushl	%eax                # put address on stack
+	pushl	$str_scanf          # put format string address on stack
+	call	scanf               # get 1st input from user
+    popl    %ecx                # restore %ecx from stack
+    popl    %eax                # restore %eax from stack
+	leal	16(%esp), 	%eax    # load address of second local variable into %eax
+	pushl	%eax                # put address on stack
+	pushl	$str_scanf          # put format string address on stack
+	call	scanf               # get 2nd input from user
+	movsbl	24(%esp),   %eax    # load 2nd variable into %eax
+    pushl   %eax                # put it on stack
+	movsbl	24(%esp),   %eax    # load 1st variable address into %eax
+	pushl	%eax                # put it on stack
+    pushl   %esi                # put *p2 address on stack
+    pushl   %ebx                # put *p1 address on stack 
+	call	pstrijcpy           # call our function
+	addl	$20,        %esp    # restore stack pointer after function call
+    pushl   %ebx                # put *p1 address on stack
+    jmp     print_strlen        # jump to common code shared between case_51 and case_52
 case_53:
 	subl	$8, 		%esp
 	pushl	%esi
