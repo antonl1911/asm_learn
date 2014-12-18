@@ -12,7 +12,10 @@ Pstring* pstrijcpy(Pstring* dst, Pstring* src, char i, char j)
 {
     int n;
 	if (src->len > dst->len)
+    {
+        printf("invalid input!\n");
 		return dst;
+    }
 	for( n = i; n <= j; n++)
 	{
 		dst->str[n] = src->str[n];
@@ -26,13 +29,12 @@ int pstrcmp(Pstring* pstr1, Pstring* pstr2)
 }
 int pstrijcmp(Pstring* pstr1, Pstring* pstr2, char i, char j)
 {
-	int n;
-	if (i > j)
+	int n, l1 = pstr1->len, l2 = pstr2->len;
+	if (i > j || i > l1 || i > l2 || j > l1 || j > l2)
+    {
 		printf("invalid input!\n");
-	if (i > pstr1->len || i > pstr2->len)
-		printf("invalid input!\n");
-	if (j > pstr1->len || j > pstr2->len)
-		printf("invalid input!\n");
+        return -2;
+    }
 	for (n = i; n <= j; n++)
 	{
 		if (pstr1->str[n] > pstr2->str[n])
