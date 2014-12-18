@@ -26,35 +26,29 @@ pstrlen:
 	.globl	pstrijcpy
 	.type	pstrijcpy, @function
 pstrijcpy:
-	pushl	%ebp
 	pushl	%edi
 	pushl	%esi
 	pushl	%ebx
-	subl	$28, %esp
-	movl	48(%esp), %esi
-	movl	52(%esp), %eax
-	movl	56(%esp), %edx
-	movl	60(%esp), %ebx
-	movsbl	(%esi), %ecx
-	movzbl	(%eax), %edi
+	movl	24(%esp), %edx
+	movl	28(%esp), %ebx
+	movl	16(%esp), %esi
+	movl	20(%esp), %eax
 	cmpb	%bl, %dl
-	movl	%ecx, 12(%esp)
-	movl	%edi, %ecx
-	movsbl	%cl, %ebp
+	movsbl	(%esi), %ecx
+	movsbl	(%eax), %edi
 	jg	.L3
-	movl	12(%esp), %ecx
 	movsbl	%dl, %edx
 	cmpl	%edx, %ecx
 	jl	.L3
-	cmpl	%edx, %ebp
+	cmpl	%edx, %edi
 	jl	.L3
 	movsbl	%bl, %ebx
 	cmpl	%ebx, %ecx
 	jl	.L3
-	cmpl	%ebx, %ebp
+	cmpl	%ebx, %edi
 	jl	.L3
 	cmpl	%ebx, %edx
-	jg	.L7
+	jg	.L5
 	addl	$1, %ebx
 	.p2align 4,,10
 	.p2align 3
@@ -64,15 +58,10 @@ pstrijcpy:
 	addl	$1, %edx
 	cmpl	%ebx, %edx
 	jne	.L6
-.L7:
-	movl	%edi, %eax
-	movb	%al, (%esi)
-	addl	$28, %esp
 	movl	%esi, %eax
 	popl	%ebx
 	popl	%esi
 	popl	%edi
-	popl	%ebp
 	ret
 	.p2align 4,,10
 	.p2align 3
@@ -81,12 +70,11 @@ pstrijcpy:
 	pushl	$.LC1
 	call	puts
 	addl	$16, %esp
+.L5:
 	movl	%esi, %eax
-	addl	$28, %esp
 	popl	%ebx
 	popl	%esi
 	popl	%edi
-	popl	%ebp
 	ret
 	.size	pstrijcpy, .-pstrijcpy
 	.section	.text.unlikely
@@ -101,21 +89,26 @@ pstrijcpy:
 	.globl	pstrcpy
 	.type	pstrcpy, @function
 pstrcpy:
+	pushl	%esi
 	pushl	%ebx
-	subl	$8, %esp
-	movl	20(%esp), %edx
+	subl	$4, %esp
+	movl	20(%esp), %esi
 	movl	16(%esp), %ebx
-	movsbl	(%edx), %eax
+	movsbl	(%esi), %eax
 	cmpb	(%ebx), %al
 	jg	.L15
 	pushl	%eax
 	pushl	$0
-	pushl	%edx
+	pushl	%esi
 	pushl	%ebx
 	call	pstrijcpy
+	movzbl	(%esi), %eax
 	addl	$16, %esp
-	addl	$8, %esp
+	movb	%al, (%ebx)
+	addl	$4, %esp
+	movl	%ebx, %eax
 	popl	%ebx
+	popl	%esi
 	ret
 	.p2align 4,,10
 	.p2align 3
@@ -125,8 +118,9 @@ pstrcpy:
 	call	puts
 	addl	$16, %esp
 	movl	%ebx, %eax
-	addl	$8, %esp
+	addl	$4, %esp
 	popl	%ebx
+	popl	%esi
 	ret
 	.size	pstrcpy, .-pstrcpy
 	.section	.text.unlikely

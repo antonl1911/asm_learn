@@ -12,7 +12,9 @@ Pstring* pstrcpy(Pstring* dst, Pstring* src)
         printf(str_inv);
 		return dst;
     }
-    return pstrijcpy(dst, src, 0, src->len);
+    pstrijcpy(dst, src, 0, src->len);
+	dst->len = src->len;
+    return dst;
 }
 Pstring* pstrijcpy(Pstring* dst, Pstring* src, char i, char j)
 {
@@ -26,7 +28,6 @@ Pstring* pstrijcpy(Pstring* dst, Pstring* src, char i, char j)
 	{
 		dst->str[n] = src->str[n];
 	}
-	dst->len = src->len;
 	return dst;
 }
 int pstrcmp(Pstring* pstr1, Pstring* pstr2)
