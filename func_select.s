@@ -8,7 +8,7 @@ str_scanf:
 str_cmpres:
 	.string	"compare result: %d\n"
 str_inval:
-	.string	"invalid option!"
+	.string	"invalid option!\n"
 jump_table:
 	.long	case_50
 	.long	case_51
@@ -88,44 +88,43 @@ case_52:
     pushl   %ebx                # put *p1 address on stack
     jmp     print_strlen        # jump to common code shared between case_51 and case_52
 case_53:
-	subl	$8, 		%esp
-	pushl	%esi
-    pushl   %ebx
-	call	pstrcmp
-	addl	$12, 		%esp
+	subl	$8, 		%esp    # reserve 8 bytes on stack
+	pushl	%esi				# put *p2 to stack 
+    pushl   %ebx				# put *p1 to stack
+	call	pstrcmp				# call pstrcmp(p1, p2)
+	addl	$12, 		%esp	# restore stack pointer
 print_compare:
-	pushl	%eax				# eax contains pstrcmp result
-	pushl	$str_cmpres
-	call	printf
-	addl	$12, 		%esp
-    jmp     exit
+	pushl	%eax				# eax contains pstr<ij>cmp result, put it to stack
+	pushl	$str_cmpres			# put format string to stack
+	call	printf				# print compare result
+	addl	$12, 		%esp 	# restore stack
+    jmp     exit				# return from function
 case_54:
 	subl	$8, %esp
 	leal	12(%esp), 	%eax	# calculate address of 'i' pstrijcmp parameter and put to eax
-	pushl	%eax
-	pushl	$str_scanf
-	call	scanf
-	popl	%eax
-	popl	%edx
+	pushl	%eax				# put i address on stack
+	pushl	$str_scanf			# put format string address on stack
+	call	scanf				# get input from user
+	popl	%eax				# restore %eax from stack
+	popl	%edx				# restore %edx from stack
 	leal	16(%esp), 	%eax	# calculate address of 'j' pstrijcmp parameter and put to eax
-	pushl	%eax
-	pushl	$str_scanf
-	call	scanf
-	movsbl	24(%esp), 	%eax
-	pushl	%eax
-	movsbl	24(%esp), 	%eax
-	pushl	%eax
-	pushl	%esi
-	pushl	%ebx
-	call	pstrijcmp
-	addl	$28, 		%esp
-	jmp		print_compare
+	pushl	%eax				# put j address to stack
+	pushl	$str_scanf			# put format string address to stack
+	call	scanf				# get j from user
+	movsbl	24(%esp), 	%eax	# put j value to %eax
+	pushl	%eax				# and put %eax to stack
+	movsbl	24(%esp), 	%eax	# put i value to %eax
+	pushl	%eax				# and put %eax on stack
+	pushl	%esi				# put *p2 address on stack
+	pushl	%ebx				# put *p1 address on stack
+	call	pstrijcmp			# call pstrijcmp from pstring.s
+	addl	$28, 		%esp	# restore stack value
+	jmp		print_compare		# print result in common code
 case_default:
-	subl	$12, 		%esp
-	pushl	$str_inval
-	call	puts
-	addl	$16, 		%esp
-	nop
+	subl	$12, 		%esp	# reserve 12 bytes from stack pointer
+	pushl	$str_inval			# put format string address to stack
+	call	printf				# print it
+	addl	$16, 		%esp	# restore stack pointer
 exit:
     addl    $20,        %esp    # return 20 bytes to stack
     popl    %ebx                # restore saved registers: %ebx
