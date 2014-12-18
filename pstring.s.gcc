@@ -15,50 +15,9 @@ pstrlen:
 .LCOLDE0:
 	.text
 .LHOTE0:
-	.section	.text.unlikely
-.LCOLDB1:
-	.text
-.LHOTB1:
-	.p2align 4,,15
-	.globl	pstrcpy
-	.type	pstrcpy, @function
-pstrcpy:
-	pushl	%edi
-	pushl	%esi
-	pushl	%ebx
-	movl	20(%esp), %ebx
-	movl	16(%esp), %eax
-	movzbl	(%ebx), %edi
-	movl	%edi, %ecx
-	cmpb	(%eax), %cl
-	jg	.L3
-	testb	%cl, %cl
-	js	.L6
-	movl	%edi, %ecx
-	xorl	%edx, %edx
-	movsbl	%cl, %esi
-	addl	$1, %esi
-	.p2align 4,,10
-	.p2align 3
-.L5:
-	movzbl	1(%ebx,%edx), %ecx
-	movb	%cl, 1(%eax,%edx)
-	addl	$1, %edx
-	cmpl	%esi, %edx
-	jne	.L5
-.L6:
-	movl	%edi, %ebx
-	movb	%bl, (%eax)
-.L3:
-	popl	%ebx
-	popl	%esi
-	popl	%edi
-	ret
-	.size	pstrcpy, .-pstrcpy
-	.section	.text.unlikely
-.LCOLDE1:
-	.text
-.LHOTE1:
+	.section	.rodata.str1.1,"aMS",@progbits,1
+.LC1:
+	.string	"invalid input!"
 	.section	.text.unlikely
 .LCOLDB2:
 	.text
@@ -67,46 +26,113 @@ pstrcpy:
 	.globl	pstrijcpy
 	.type	pstrijcpy, @function
 pstrijcpy:
+	pushl	%ebp
 	pushl	%edi
 	pushl	%esi
 	pushl	%ebx
-	movl	20(%esp), %esi
-	movl	16(%esp), %eax
-	movl	24(%esp), %edx
-	movl	28(%esp), %ebx
-	movzbl	(%esi), %edi
+	subl	$28, %esp
+	movl	48(%esp), %esi
+	movl	52(%esp), %eax
+	movl	56(%esp), %edx
+	movl	60(%esp), %ebx
+	movsbl	(%esi), %ecx
+	movzbl	(%eax), %edi
+	cmpb	%bl, %dl
+	movl	%ecx, 12(%esp)
 	movl	%edi, %ecx
-	cmpb	(%eax), %cl
-	jg	.L11
+	movsbl	%cl, %ebp
+	jg	.L3
+	movl	12(%esp), %ecx
 	movsbl	%dl, %edx
+	cmpl	%edx, %ecx
+	jl	.L3
+	cmpl	%edx, %ebp
+	jl	.L3
 	movsbl	%bl, %ebx
+	cmpl	%ebx, %ecx
+	jl	.L3
+	cmpl	%ebx, %ebp
+	jl	.L3
 	cmpl	%ebx, %edx
-	jg	.L14
+	jg	.L7
 	addl	$1, %ebx
 	.p2align 4,,10
 	.p2align 3
-.L13:
-	movzbl	1(%esi,%edx), %ecx
-	movb	%cl, 1(%eax,%edx)
+.L6:
+	movzbl	1(%eax,%edx), %ecx
+	movb	%cl, 1(%esi,%edx)
 	addl	$1, %edx
 	cmpl	%ebx, %edx
-	jne	.L13
-.L14:
-	movl	%edi, %ebx
-	movb	%bl, (%eax)
-.L11:
+	jne	.L6
+.L7:
+	movl	%edi, %eax
+	movb	%al, (%esi)
+	addl	$28, %esp
+	movl	%esi, %eax
 	popl	%ebx
 	popl	%esi
 	popl	%edi
+	popl	%ebp
+	ret
+	.p2align 4,,10
+	.p2align 3
+.L3:
+	subl	$12, %esp
+	pushl	$.LC1
+	call	puts
+	addl	$16, %esp
+	movl	%esi, %eax
+	addl	$28, %esp
+	popl	%ebx
+	popl	%esi
+	popl	%edi
+	popl	%ebp
 	ret
 	.size	pstrijcpy, .-pstrijcpy
 	.section	.text.unlikely
 .LCOLDE2:
 	.text
 .LHOTE2:
-	.section	.rodata.str1.1,"aMS",@progbits,1
-.LC3:
-	.string	"invalid input!"
+	.section	.text.unlikely
+.LCOLDB3:
+	.text
+.LHOTB3:
+	.p2align 4,,15
+	.globl	pstrcpy
+	.type	pstrcpy, @function
+pstrcpy:
+	pushl	%ebx
+	subl	$8, %esp
+	movl	20(%esp), %edx
+	movl	16(%esp), %ebx
+	movsbl	(%edx), %eax
+	cmpb	(%ebx), %al
+	jg	.L15
+	pushl	%eax
+	pushl	$0
+	pushl	%edx
+	pushl	%ebx
+	call	pstrijcpy
+	addl	$16, %esp
+	addl	$8, %esp
+	popl	%ebx
+	ret
+	.p2align 4,,10
+	.p2align 3
+.L15:
+	subl	$12, %esp
+	pushl	$.LC1
+	call	puts
+	addl	$16, %esp
+	movl	%ebx, %eax
+	addl	$8, %esp
+	popl	%ebx
+	ret
+	.size	pstrcpy, .-pstrcpy
+	.section	.text.unlikely
+.LCOLDE3:
+	.text
+.LHOTE3:
 	.section	.text.unlikely
 .LCOLDB4:
 	.text
@@ -120,63 +146,43 @@ pstrijcmp:
 	pushl	%esi
 	pushl	%ebx
 	subl	$12, %esp
-	movl	40(%esp), %ecx
-	movl	44(%esp), %ebx
-	movl	32(%esp), %esi
-	movl	36(%esp), %edi
-	cmpb	%bl, %cl
-	movsbl	%cl, %ebp
-	movsbl	(%esi), %eax
-	movsbl	(%edi), %edx
-	jg	.L35
+	movl	40(%esp), %eax
+	movl	44(%esp), %edx
+	movl	32(%esp), %ecx
+	movl	36(%esp), %ebx
+	cmpb	%dl, %al
+	movsbl	(%ecx), %esi
+	movsbl	(%ebx), %edi
+	jg	.L17
+	movsbl	%al, %eax
+	cmpl	%eax, %esi
+	jl	.L17
+	cmpl	%eax, %edi
+	jl	.L17
+	movsbl	%dl, %ebp
+	cmpl	%ebp, %esi
+	jl	.L17
+	cmpl	%ebp, %edi
+	jl	.L17
 	cmpl	%ebp, %eax
-	jl	.L35
-	cmpl	%ebp, %edx
-	jl	.L35
-	movsbl	%bl, %ebx
-	cmpl	%ebx, %eax
-	jl	.L20
-	cmpl	%ebx, %edx
-	jl	.L20
-	movl	%ebp, %eax
-	jmp	.L19
+	jg	.L22
+	movzbl	1(%ecx,%eax), %edx
+	cmpb	%dl, 1(%ebx,%eax)
+	jl	.L25
+	jle	.L20
+	jmp	.L26
 	.p2align 4,,10
 	.p2align 3
-.L35:
-	movsbl	%bl, %ebx
+.L21:
+	movzbl	1(%ebx,%eax), %edx
+	cmpb	%dl, 1(%ecx,%eax)
+	jg	.L25
+	jl	.L26
 .L20:
-	subl	$12, %esp
-	pushl	$.LC3
-	call	puts
-	addl	$16, %esp
-	movl	%ebp, %eax
-.L19:
-	cmpl	%ebx, %ebp
-	jg	.L25
-	movzbl	1(%edi,%ebp), %edx
-	cmpb	%dl, 1(%esi,%ebp)
-	jg	.L28
-	.p2align 4,,10
-	.p2align 3
-.L37:
-	jl	.L29
 	addl	$1, %eax
-	cmpl	%ebx, %eax
-	jg	.L25
-	movzbl	1(%edi,%eax), %ecx
-	cmpb	%cl, 1(%esi,%eax)
-	jle	.L37
-.L28:
-	addl	$12, %esp
-	movl	$1, %eax
-	popl	%ebx
-	popl	%esi
-	popl	%edi
-	popl	%ebp
-	ret
-	.p2align 4,,10
-	.p2align 3
-.L25:
+	cmpl	%eax, %ebp
+	jge	.L21
+.L22:
 	addl	$12, %esp
 	xorl	%eax, %eax
 	popl	%ebx
@@ -186,9 +192,33 @@ pstrijcmp:
 	ret
 	.p2align 4,,10
 	.p2align 3
-.L29:
+.L25:
+	addl	$12, %esp
+	movl	$1, %eax
+	popl	%ebx
+	popl	%esi
+	popl	%edi
+	popl	%ebp
+	ret
+	.p2align 4,,10
+	.p2align 3
+.L26:
 	addl	$12, %esp
 	movl	$-1, %eax
+	popl	%ebx
+	popl	%esi
+	popl	%edi
+	popl	%ebp
+	ret
+	.p2align 4,,10
+	.p2align 3
+.L17:
+	subl	$12, %esp
+	pushl	$.LC1
+	call	puts
+	addl	$16, %esp
+	movl	$-2, %eax
+	addl	$12, %esp
 	popl	%ebx
 	popl	%esi
 	popl	%edi

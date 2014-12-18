@@ -1,6 +1,6 @@
 	.section	.rodata
 str_inv:
-	.string	"invalid input!"
+	.string	"invalid input!\n"
 	.text
 	.globl	pstrlen
 	.type	pstrlen, @function
@@ -12,55 +12,92 @@ pstrlen:
 	.globl	pstrcpy
 	.type	pstrcpy, @function
 pstrcpy:
-	subl	$12,		%esp
-	movl	20(%esp),	%eax    # get 
-	movsbl	(%eax),		%edx	# put src->len to %edx
-	pushl	%edx				# put 
+    pushl   %ebx
+	subl	$8,		    %esp
+	movl	20(%esp),	%edx    # get 
+	movl	16(%esp),	%ebx    # get 
+	movsbl	(%edx),		%eax	# put src->len to %eax
+	cmpb	(%ebx), 	%al		# compare dst->len with src->len
+	jg		pstrcpy_inv 		# if src->len is greater then dst->len, print error mesage
+	pushl	%eax				# put 
 	pushl	$0
-	pushl	%eax
-	pushl	28(%esp)
+	pushl	%edx
+    pushl   %ebx
 	call	pstrijcpy
-	addl	$28,		%esp
+	addl	$24,		%esp
+    popl    %ebx
+    ret
+pstrcpy_inv:
+    subl    $12,        %esp
+    pushl   $str_inv
+    call    printf
+    addl    $24,        %esp
+    movl    %ebx,       %eax
+    popl    %ebx
+    ret
 	.size	pstrcpy, .-pstrcpy
 	.globl	pstrijcpy
 	.type	pstrijcpy, @function
 pstrijcpy:
+    pushl   %ebp
 	pushl	%edi
 	pushl	%esi
 	pushl	%ebx
-	movl	28(%esp), 	%ebx    # j
-	movl	24(%esp), 	%edx    # i
-	movl	20(%esp), 	%esi    # src
-	movl	16(%esp), 	%eax	# dst
-	movzbl	(%esi), 	%edi	# copy src->len to %edi
-	movl	%edi,		%ecx    # copy %edi to %ecx
-	cmpb	(%eax), 	%cl		# compare dst->len with src->len
-	jg		pstrijcpy_inv		# if src->len is greater then dst->len, print error mesage
-	movsbl	%dl, 		%edx    #
-	movsbl	%bl, 		%ebx    #
-	cmpl	%ebx, 		%edx    # compare 
-	jg	len_update
-	addl	$1, 		%ebx
-loop_copy:
-	movzbl	1(%esi,%edx), %ecx	# get char from src
-	movb	%cl, 		1(%eax,%edx) # put char to dst
-	addl	$1, 		%edx	# increment counter
-	cmpl	%ebx, 		%edx    # compare counter with j
-	jne	loop_copy               # continue loop if counter < j
-len_update:
-	movl	%edi, 		%ebx    # restore %ebx from %edi
-	movb	%bl,		(%eax)  # update len field (1 byte) in dst, which is returned in %eax 
-    jmp     pstrijcpy_exit
-pstrijcpy_inv:
-	subl	$12,        %esp
-	pushl	$str_inv
-	call	printf
-	addl	$16,        %esp
-pstrijcpy_exit:
-	popl	%ebx                # restore saved registers
+    subl    $28,        %esp
+	movl	60(%esp), 	%ebx    # j
+	movl	56(%esp), 	%edx    # i
+	movl	52(%esp), 	%eax    # src
+	movl	48(%esp), 	%esi	# dst
+    movsbl  (%esi),     %ecx
+	movzbl	(%eax), 	%edi	# copy src->len to %edi
+	cmpb	%bl,        %dl
+    movl    %ecx,       12(%esp)
+    movl    %edi,       %ecx
+    movsbl  %cl,        %ebp
+	jg	    pstrijcpy_inv
+    movl    12(%esp),   %ecx
+    movsbl  %dl,        %edx
+	cmpl	%edx, %ecx
+	jl	pstrijcpy_inv
+	cmpl	%edx, %ebp
+	jl	pstrijcpy_inv
+	movsbl	%bl, %ebx
+	cmpl	%ebx, %ecx
+	jl	pstrijcpy_inv
+	cmpl	%ebx, %ebp
+	jl	pstrijcpy_inv
+	cmpl	%ebx, %edx
+	jg	.L7
+	addl	$1, %ebx
+.L6:
+	movzbl	1(%eax,%edx), %ecx
+	movb	%cl, 1(%esi,%edx)
+	addl	$1, %edx
+	cmpl	%ebx, %edx
+	jne	.L6
+.L7:
+	movl	%edi, %eax
+	movb	%al, (%esi)
+	addl	$28, %esp
+	movl	%esi, %eax
+	popl	%ebx
 	popl	%esi
 	popl	%edi
+	popl	%ebp
 	ret
+pstrijcpy_inv:
+	subl	$12, %esp
+	pushl	$str_inv
+	call	puts
+	addl	$16, %esp
+	movl	%esi, %eax
+	addl	$28, %esp
+	popl	%ebx
+	popl	%esi
+	popl	%edi
+	popl	%ebp
+	ret
+
 	.size	pstrijcpy, .-pstrijcpy
 	.globl	pstrijcmp
 	.type	pstrijcmp, @function
@@ -79,18 +116,18 @@ pstrijcmp:
 	movsbl	(%edi),     %edx
 	movsbl	%bl,        %ebx    # save 
 	cmpb	%bl,        %cl     # compare 
-	jg	print_inv               #
+	jg	pstrijcmp_inv           #
 	cmpl	%ebp,       %eax    #
-	jl	print_inv               #
+	jl	pstrijcmp_inv           #
 	cmpl	%ebp,       %edx    #
-	jl	print_inv               #
+	jl	pstrijcmp_inv           #
 	cmpl	%ebx,       %eax    #
-	jl	print_inv               #
+	jl	pstrijcmp_inv           #
 	cmpl	%ebx,       %edx    #
-	jl	print_inv               #
+	jl	pstrijcmp_inv           #
 	movl	%ebp,       %eax    #
 	jmp	cmp_more        
-print_inv:
+pstrijcmp_inv:
 	subl	$12,        %esp
 	pushl	$str_inv
 	call	printf
