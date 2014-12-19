@@ -12,8 +12,9 @@ pstrlen:
 	.globl	pstrcpy
 	.type	pstrcpy, @function
 pstrcpy:
+	pushl	%esi				# callee save %esi on stack
     pushl   %ebx                # callee save %ebx on stack
-	subl	$8,		    %esp    # reserve 8 bytes from stack
+	subl	$4,		    %esp    # reserve 4 bytes from stack
 	movl	20(%esp),	%esi    # get src from stack
 	movl	16(%esp),	%ebx    # get dst from stack
 	movsbl	(%esi),		%eax	# put src->len to %eax
@@ -35,6 +36,7 @@ pstrcpy_exit:
     addl    $20,        %esp    # restore stack pointer value
     movl    %ebx,       %eax    # set *dst as return value
     popl    %ebx                # callee restore %ebx
+    popl    %esi                # callee restore %esi
     ret
 	.size	pstrcpy, .-pstrcpy
 	.globl	pstrijcpy
@@ -43,10 +45,10 @@ pstrijcpy:
 	pushl	%edi                # callee save registers
 	pushl	%esi
 	pushl	%ebx
-	movl	28(%esp),   %ebx    # load parameters from stack
-    movl	24(%esp),   %edx    
-	movl	20(%esp),   %eax
-	movl	16(%esp),   %esi
+	movl	28(%esp),   %ebx    # load parameters from stack, j
+    movl	24(%esp),   %edx    # i
+	movl	20(%esp),   %eax	# src
+	movl	16(%esp),   %esi	# dst
 	movsbl	(%esi),     %ecx    # load pstr1->len into %ecx
 	movsbl	(%eax),     %edi    # load pstr2->len into %edi
 	cmpb	%bl,        %dl     # compare j with i
@@ -63,26 +65,26 @@ pstrijcpy:
 	jl	pstrijcpy_inv           # print invalid message
 	cmpl	%ebx,       %edx    # if counter > j,
 	jg	pstrijcpy_exit          # go to exit
-	addl	$1,         %ebx    # 
+	addl	$1,         %ebx    # %ebx now is j+1
 pstrijcpy_loop:
-	movzbl	1(%eax,%edx),%ecx
-	movb	%cl,    1(%esi,%edx)
-	addl	$1,         %edx
-	cmpl	%ebx,       %edx
-	jne	    pstrijcpy_loop
-	movl	%esi,       %eax
-	popl	%ebx
+	movzbl	1(%eax,%edx),%ecx   # get 1 byte from src[counter]
+	movb	%cl,    1(%esi,%edx)# and put it to dst[counter] 
+	addl	$1,         %edx	# increase counter
+	cmpl	%ebx,       %edx	# compare if counter equals j+1
+	jne	    pstrijcpy_loop		# if counter still less than j+1, run another round
+	movl	%esi,       %eax	# put *dst to %eax
+	popl	%ebx				# calee restore registers
 	popl	%esi
 	popl	%edi
 	ret
 pstrijcpy_inv:
-	subl	$12,        %esp
-	pushl	$str_inv
+	subl	$12,        %esp	# reserve 12 bytes on stack
+	pushl	$str_inv			# put format string on stack
 	call	printf
-	addl	$16,        %esp
+	addl	$16,        %esp	# restore stack pointer
 pstrijcpy_exit:
 	movl	%esi,       %eax    # put dst to %eax
-	popl	%ebx
+	popl	%ebx				# restore registers
 	popl	%esi
 	popl	%edi
 	ret
@@ -94,7 +96,7 @@ pstrijcmp:
 	pushl	%edi
 	pushl	%esi
 	pushl	%ebx
-	subl	$12,        %esp    # 
+	subl	$12,        %esp    # reserve 12 bytes on stack
 	movl	44(%esp),   %ebx    # put j to %ebx
 	movl	40(%esp),   %ecx    # put i to %ecx
 	movl	36(%esp),   %edi    # put *pstr2 to %edi
@@ -114,7 +116,7 @@ pstrijcmp:
 	cmpl	%ebx,       %edx    #
 	jl	pstrijcmp_inv           #
 	movl	%ebp,       %eax    #
-	jmp	cmp_more        
+	jmp	loop_start        
 pstrijcmp_inv:
 	subl	$12,        %esp
 	pushl	$str_inv
@@ -122,31 +124,31 @@ pstrijcmp_inv:
 	addl	$16,        %esp
 	movl	$-2,        %eax    # put -2 as return result to %eax
     jmp     pstrijcmp_exit
-cmp_more:
+loop_start:
 	cmpl	%ebx,       %ebp    # compare counter with j
 	jg	    return_equal        # if loop is finished (counter > j), return 0
-	movzbl	1(%edi,%ebp), %edx  # put 
-	cmpb	%dl,   1(%esi,%ebp) # compare
+	movzbl	1(%edi,%ebp), %edx  # put pstr2[counter] to %edx
+	cmpb	%dl,   1(%esi,%ebp) # compare lowest byte of %edx with pstr1[counter]
 	jg	    return_more         # return 1 as pstr1->str[cnt] > pstr2->str[cnt]
-cmp_less:
+pstrijcmp_loop:
 	jl	    return_less         # return -1 as pstr1->str[cnt] < pstr2->str[cnt]
 	addl	$1,         %eax    # increase counter
-	cmpl	%ebx,       %eax    # compare counter with 
+	cmpl	%ebx,       %eax    # compare counter with j
 	jg	return_equal            # if loop is finished (counter > j), return 0
-	movzbl	1(%edi,%eax), %ecx
-	cmpb	%cl,   1(%esi,%eax)
-	jle	cmp_less
+	movzbl	1(%edi,%eax), %ecx	# put pstr2[counter] to %ecx
+	cmpb	%cl,   1(%esi,%eax)	# compare it with pstr1[counter]
+	jle	pstrijcmp_loop			# continue the loop if less or equal
 return_more:
 	movl	$1,         %eax    # return value is 1
-    jmp     pstrijcmp_exit
+    jmp     pstrijcmp_exit		# leave the function
 return_equal:
 	xorl	%eax,       %eax    # set %eax to zero
-    jmp     pstrijcmp_exit
+    jmp     pstrijcmp_exit		# leave the function
 return_less:
 	movl	$-1, %eax           # return value is -1
 pstrijcmp_exit:    
-    addl    $12,        %esp
-	popl	%ebx
+    addl    $12,        %esp	# restore stack pointer
+	popl	%ebx				# restore saved registers
 	popl	%esi
 	popl	%edi
 	popl	%ebp
