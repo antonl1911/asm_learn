@@ -34,19 +34,19 @@ pstrijcpy:
 	movl	16(%esp), %esi
 	movl	20(%esp), %eax
 	cmpb	%bl, %dl
-	movsbl	(%esi), %ecx
-	movsbl	(%eax), %edi
+	movzbl	(%esi), %ecx
+	movzbl	(%eax), %edi
 	jg	.L3
 	movsbl	%dl, %edx
 	cmpl	%edx, %ecx
-	jl	.L3
+	jle	.L3
 	cmpl	%edx, %edi
-	jl	.L3
+	jle	.L3
 	movsbl	%bl, %ebx
 	cmpl	%ebx, %ecx
-	jl	.L3
+	jle	.L3
 	cmpl	%ebx, %edi
-	jl	.L3
+	jle	.L3
 	cmpl	%ebx, %edx
 	jg	.L5
 	addl	$1, %ebx
@@ -94,17 +94,20 @@ pstrcpy:
 	subl	$4, %esp
 	movl	20(%esp), %esi
 	movl	16(%esp), %ebx
-	movsbl	(%esi), %eax
-	cmpb	(%ebx), %al
+	movzbl	(%esi), %edx
+	cmpb	(%ebx), %dl
 	jg	.L15
-	pushl	%eax
+	subl	$1, %edx
+	movsbl	%dl, %edx
+	pushl	%edx
 	pushl	$0
 	pushl	%esi
 	pushl	%ebx
 	call	pstrijcpy
-	movzbl	(%esi), %eax
+	movsbl	(%esi), %eax
 	addl	$16, %esp
 	movb	%al, (%ebx)
+	movb	$0, 1(%ebx,%eax)
 	addl	$4, %esp
 	movl	%ebx, %eax
 	popl	%ebx
@@ -150,14 +153,14 @@ pstrijcmp:
 	jg	.L17
 	movsbl	%al, %eax
 	cmpl	%eax, %esi
-	jl	.L17
+	jle	.L17
 	cmpl	%eax, %edi
-	jl	.L17
+	jle	.L17
 	movsbl	%dl, %ebp
 	cmpl	%ebp, %esi
-	jl	.L17
+	jle	.L17
 	cmpl	%ebp, %edi
-	jl	.L17
+	jle	.L17
 	cmpl	%ebp, %eax
 	jg	.L22
 	movzbl	1(%ecx,%eax), %edx
@@ -231,16 +234,32 @@ pstrijcmp:
 	.globl	pstrcmp
 	.type	pstrcmp, @function
 pstrcmp:
-	subl	$12, %esp
-	movl	16(%esp), %eax
-	movsbl	(%eax), %edx
+	pushl	%ebx
+	movl	$1, %eax
+	subl	$8, %esp
+	movl	16(%esp), %ecx
+	movl	20(%esp), %ebx
+	movzbl	(%ecx), %edx
+	cmpb	(%ebx), %dl
+	jg	.L29
+	jl	.L31
+	subl	$1, %edx
+	movsbl	%dl, %edx
 	pushl	%edx
 	pushl	$0
-	pushl	28(%esp)
-	pushl	%eax
+	pushl	%ebx
+	pushl	%ecx
 	call	pstrijcmp
-	addl	$28, %esp
+	addl	$16, %esp
+.L29:
+	addl	$8, %esp
+	popl	%ebx
 	ret
+	.p2align 4,,10
+	.p2align 3
+.L31:
+	movl	$-1, %eax
+	jmp	.L29
 	.size	pstrcmp, .-pstrcmp
 	.section	.text.unlikely
 .LCOLDE5:

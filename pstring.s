@@ -17,16 +17,19 @@ pstrcpy:
 	subl	$4,		    %esp    # reserve 4 bytes from stack
 	movl	20(%esp),	%esi    # get src from stack
 	movl	16(%esp),	%ebx    # get dst from stack
-	movsbl	(%esi),		%eax	# put src->len to %eax
+	movzbl	(%esi),		%eax	# put src->len to %eax
 	cmpb	(%ebx), 	%al		# compare dst->len with src->len
 	jg		pstrcpy_inv 		# if src->len is greater then dst->len, print error mesage
+	subl	$1,			%eax
+	movsbl	%al,		%eax
 	pushl	%eax				# put src->len on stack as end position
 	pushl	$0                  # put 0 on stack as start position
 	pushl	%esi                # put src on stack
     pushl   %ebx                # put dst on stack
 	call	pstrijcpy           # use more general function
-    movzbl  (%esi),     %eax    # put src->len to %eax
+    movsbl  (%esi),     %eax    # put src->len to %eax
     movb    %al,        (%ebx)  # put src->len to dst->len
+	movb	$0,		1(%ebx,%eax)# null-terminate dst
     jmp     pstrcpy_exit
 pstrcpy_inv:
     subl    $12,        %esp    # reserve 12 bytes on stack
@@ -49,22 +52,22 @@ pstrijcpy:
     movl	24(%esp),   %edx    # i
 	movl	20(%esp),   %eax	# src
 	movl	16(%esp),   %esi	# dst
-	movsbl	(%esi),     %ecx    # load pstr1->len into %ecx
-	movsbl	(%eax),     %edi    # load pstr2->len into %edi
 	cmpb	%bl,        %dl     # compare j with i
-	jg	pstrijcpy_inv           # if j > i, print invalid message
+	movzbl	(%esi),     %ecx    # load pstr1->len into %ecx
+	movzbl	(%eax),     %edi    # load pstr2->len into %edi
+	jg		pstrijcpy_inv       # if j > i, print invalid message
 	movsbl	%dl,        %edx    # set higher bytes of %edx to 0xF (for correct comparison)
 	cmpl	%edx,       %ecx    # compare i with pstr1->len
-	jl	pstrijcpy_inv           # if i > pstr1->len, print invalid message
+	jle		pstrijcpy_inv       # if i > pstr1->len, print invalid message
 	cmpl	%edx,       %edi    # compare i with pstr2->len
-	jl	pstrijcpy_inv           # if i > pstr2->len, print invalid message
+	jle		pstrijcpy_inv       # if i > pstr2->len, print invalid message
 	movsbl	%bl,        %ebx    
 	cmpl	%ebx,       %ecx    # if j > pstr1->len,
-	jl	pstrijcpy_inv           # print invalid message
+	jle		pstrijcpy_inv       # print invalid message
 	cmpl	%ebx,       %edi    # if j > pstr2->len
-	jl	pstrijcpy_inv           # print invalid message
+	jle		pstrijcpy_inv       # print invalid message
 	cmpl	%ebx,       %edx    # if counter > j,
-	jg	pstrijcpy_exit          # go to exit
+	jg		pstrijcpy_exit      # go to exit
 	addl	$1,         %ebx    # %ebx now is j+1
 pstrijcpy_loop:
 	movzbl	1(%eax,%edx),%ecx   # get 1 byte from src[counter]
@@ -106,15 +109,15 @@ pstrijcmp:
 	movsbl	(%edi),     %edx
 	movsbl	%bl,        %ebx    # comparison as in pstrijcpy
 	cmpb	%bl,        %cl     # 
-	jg	pstrijcmp_inv           #
+	jg		pstrijcmp_inv       #
 	cmpl	%ebp,       %eax    #
-	jl	pstrijcmp_inv           #
+	jle		pstrijcmp_inv       #
 	cmpl	%ebp,       %edx    #
-	jl	pstrijcmp_inv           #
+	jle		pstrijcmp_inv       #
 	cmpl	%ebx,       %eax    #
-	jl	pstrijcmp_inv           #
+	jle		pstrijcmp_inv       #
 	cmpl	%ebx,       %edx    #
-	jl	pstrijcmp_inv           #
+	jle		pstrijcmp_inv       #
 	movl	%ebp,       %eax    #
 	jmp	loop_start        
 pstrijcmp_inv:
@@ -134,10 +137,10 @@ pstrijcmp_loop:
 	jl	    return_less         # return -1 as pstr1->str[cnt] < pstr2->str[cnt]
 	addl	$1,         %eax    # increase counter
 	cmpl	%ebx,       %eax    # compare counter with j
-	jg	return_equal            # if loop is finished (counter > j), return 0
+	jg		return_equal            # if loop is finished (counter > j), return 0
 	movzbl	1(%edi,%eax), %ecx	# put pstr2[counter] to %ecx
 	cmpb	%cl,   1(%esi,%eax)	# compare it with pstr1[counter]
-	jle	pstrijcmp_loop			# continue the loop if less or equal
+	jle		pstrijcmp_loop			# continue the loop if less or equal
 return_more:
 	movl	$1,         %eax    # return value is 1
     jmp     pstrijcmp_exit		# leave the function
@@ -156,14 +159,28 @@ pstrijcmp_exit:
 	.globl	pstrcmp
 	.type	pstrcmp, @function
 pstrcmp:
-	subl	$12,        %esp    # reserve space on stack
-	movl	16(%esp),   %eax    # get pstr1 address
-	movsbl	(%eax),     %edx    # copy lowest byte (len) value pointed by %eax to %edx
+	pushl	%ebx
+	movl	$1,			%eax
+	subl	$8,         %esp    # reserve space on stack
+	movl	20(%esp),   %ebx    # get pstr2 address
+	movl	16(%esp),   %ecx    # get pstr1 address
+	movsbl	(%ecx),     %edx    # copy lowest byte (len) value pointed by %ecx to %edx
+	cmpb	(%ebx),		%dl		# compare lengths
+	jg		ret_more			#
+	jl		ret_less
+	subl	$1,			%edx
+	movsbl	%dl,		%edx
 	pushl	%edx                # put it on stack
 	pushl	$0                  # put 0 as third argument to stack
-	pushl	28(%esp)            # put *pstr2 on stack
-	pushl	%eax                # put *pstr1 on stack
+	pushl	%ebx            	# put *pstr2 on stack
+	pushl	%ecx                # put *pstr1 on stack
 	call	pstrijcmp           # call more general function
-	addl	$28,        %esp    # restore stack pointer (12 bytes + 4 pushl * 4 bytes)
+	addl	$16,        %esp    # restore stack pointer
+ret_more:
+	addl	$8,			%esp
+	popl	%ebx
 	ret
+ret_less:
+	movl	$-1,		%eax
+	jmp		ret_more
 	.size	pstrcmp, .-pstrcmp

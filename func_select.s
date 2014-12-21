@@ -1,6 +1,6 @@
 	.section	.rodata         # read-only data section
 str_twolen:
-	.string	"first pstring length %d, second pstring length: %d\n"
+	.string	"first pstring length: %d, second pstring length: %d\n"
 str_outres:
 	.string	"length: %d, string: %s\n"
 str_scanf:
