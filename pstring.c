@@ -20,7 +20,7 @@ Pstring* pstrcpy(Pstring* dst, Pstring* src)
 Pstring* pstrijcpy(Pstring* dst, Pstring* src, char i, char j)
 {
 	int n, l1 = (unsigned char)dst->len, l2 = (unsigned char)src->len;
-	if (i > j || i >= l1 || i >= l2 || j >= l1 || j >= l2)
+	if (i > j || i >= l1 || i >= l2 || j > l1 || j > l2)
     {
 		printf("invalid input!\n");
         return dst;

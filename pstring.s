@@ -58,14 +58,14 @@ pstrijcpy:
 	jg		pstrijcpy_inv       # if j > i, print invalid message
 	movsbl	%dl,        %edx    # set higher bytes of %edx to 0xF (for correct comparison)
 	cmpl	%edx,       %ecx    # compare i with pstr1->len
-	jle		pstrijcpy_inv       # if i > pstr1->len, print invalid message
+	jle		pstrijcpy_inv       # if i >= pstr1->len, print invalid message
 	cmpl	%edx,       %edi    # compare i with pstr2->len
-	jle		pstrijcpy_inv       # if i > pstr2->len, print invalid message
+	jle		pstrijcpy_inv       # if i >= pstr2->len, print invalid message
 	movsbl	%bl,        %ebx    
 	cmpl	%ebx,       %ecx    # if j > pstr1->len,
-	jle		pstrijcpy_inv       # print invalid message
+	jl		pstrijcpy_inv       # print invalid message
 	cmpl	%ebx,       %edi    # if j > pstr2->len
-	jle		pstrijcpy_inv       # print invalid message
+	jl		pstrijcpy_inv       # print invalid message
 	cmpl	%ebx,       %edx    # if counter > j,
 	jg		pstrijcpy_exit      # go to exit
 	addl	$1,         %ebx    # %ebx now is j+1

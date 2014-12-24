@@ -44,9 +44,9 @@ pstrijcpy:
 	jle	.L3
 	movsbl	%bl, %ebx
 	cmpl	%ebx, %ecx
-	jle	.L3
+	jl	.L3
 	cmpl	%ebx, %edi
-	jle	.L3
+	jl	.L3
 	cmpl	%ebx, %edx
 	jg	.L5
 	addl	$1, %ebx
