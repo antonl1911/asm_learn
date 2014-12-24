@@ -43,7 +43,7 @@ int pstrcmp(Pstring* pstr1, Pstring* pstr2)
 int pstrijcmp(Pstring* pstr1, Pstring* pstr2, char i, char j)
 {
 	int n, l1 = pstr1->len, l2 = pstr2->len;
-	if (i > j || i >= l1 || i >= l2 || j >= l1 || j >= l2)
+	if (i > j || i >= l1 || i >= l2 || j > l1 || j > l2)
     {
 		printf(str_inv);
         return -2;

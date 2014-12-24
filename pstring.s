@@ -105,19 +105,19 @@ pstrijcmp:
 	movl	36(%esp),   %edi    # put *pstr2 to %edi
 	movl	32(%esp),   %esi    # put *pstr1 to %esi
 	movsbl	%cl,        %ebp
-	movsbl	(%esi),     %eax
-	movsbl	(%edi),     %edx
-	movsbl	%bl,        %ebx    # comparison as in pstrijcpy
-	cmpb	%bl,        %cl     # 
+	movsbl	(%esi),     %eax    # pstr1->len goes to %eax
+	movsbl	(%edi),     %edx    # pstr2->len goes to %edx
+	movsbl	%bl,        %ebx    # 
+	cmpb	%bl,        %cl     # compare j with i
 	jg		pstrijcmp_inv       #
-	cmpl	%ebp,       %eax    #
+	cmpl	%ebp,       %eax    # compare i with pstr1->len
 	jle		pstrijcmp_inv       #
-	cmpl	%ebp,       %edx    #
+	cmpl	%ebp,       %edx    # compare i with pstr2->len
 	jle		pstrijcmp_inv       #
-	cmpl	%ebx,       %eax    #
-	jle		pstrijcmp_inv       #
-	cmpl	%ebx,       %edx    #
-	jle		pstrijcmp_inv       #
+	cmpl	%ebx,       %eax    # compare j with pstr1->len
+	jl		pstrijcmp_inv       #
+	cmpl	%ebx,       %edx    # compare j with pstr2->len
+	jl		pstrijcmp_inv       #
 	movl	%ebp,       %eax    #
 	jmp	loop_start        
 pstrijcmp_inv:

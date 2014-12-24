@@ -158,9 +158,9 @@ pstrijcmp:
 	jle	.L17
 	movsbl	%dl, %ebp
 	cmpl	%ebp, %esi
-	jle	.L17
+	jl	.L17
 	cmpl	%ebp, %edi
-	jle	.L17
+	jl	.L17
 	cmpl	%ebp, %eax
 	jg	.L22
 	movzbl	1(%ecx,%eax), %edx
@@ -265,5 +265,5 @@ pstrcmp:
 .LCOLDE5:
 	.text
 .LHOTE5:
-	.ident	"GCC: (Gentoo 4.9.1 p1.0, pie-0.6.0) 4.9.1"
+	.ident	"GCC: (Gentoo 4.9.2 p1.0, pie-0.6.1) 4.9.2"
 	.section	.note.GNU-stack,"",@progbits
